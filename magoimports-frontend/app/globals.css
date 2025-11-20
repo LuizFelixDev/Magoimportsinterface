@@ -3,6 +3,16 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* Mantenha as variáveis de cor e adicione as customizadas para o tema claro */
+  --primary-color: #5d5dff; 
+  --secondary-color: #4b4bdf;
+  --background-color: #f7f9fc;
+  --card-background: #ffffff;
+  --text-color: #333333;
+  --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --border-radius-xl: 20px;
+  --border-radius-l: 12px;
+  --transition-speed: 0.3s;
 }
 
 @theme inline {
@@ -19,8 +29,30 @@
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Base e Reset */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
+
+body {
+    /* Remova font-family: Arial, Helvetica, sans-serif; para usar a fonte Next/Geist */
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+/* Adicione AQUI TODO O CONTEÚDO RESTANTE do seu style.css original */
+
+/* 1. Barra de Navegação (Navbar) */
+.navbar {
+    display: flex;
+    /* ... o restante do CSS da navbar ... */
+    /* Usando cores do tema claro/escuro com fallback */
+    background-color: var(--card-background);
+    color: var(--text-color);
+    /* ... */
+}
+/* ... etc. Cole todo o CSS do style.css original aqui ... */
+/* Se houver conflitos, você terá que resolver manualmente, mas o Tailwind não deve interferir nas classes customizadas */

@@ -1,65 +1,145 @@
-import Image from "next/image";
+'use client'; 
+import React, { useState, useCallback } from 'react';
+import { useProducts, Product } from '@/hooks/useProducts'; 
+import ProductCard from '@/components/ProductCard'; 
+import ProductModal from '@/components/ProductModal'; 
 
-export default function Home() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+// Componente para a mensagem de alerta (para reatividade e animações)
+const Alert = ({ message, type }: { message: string, type: 'success' | 'error' }) => {
+    const [isVisible, setIsVisible] = useState(true);
+
+    if (!isVisible) return null;
+
+    // Esconde o alerta após 3 segundos
+    setTimeout(() => setIsVisible(false), 3000);
+
+    return (
+        <div className={`alert ${type} show`}>
+            {message}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    );
+};
+
+// Componente da Página Principal (usa 'use client' para interatividade)
+export default function HomePage() {
+    const { products, isLoading, error, saveProduct, deleteProduct } = useProducts();
+    
+    // Estados para o Modal de Cadastro/Edição
+    const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+    const [productToEdit, setProductToEdit] = useState<Product | null>(null);
+    
+    // Estados para o Modal de Exclusão
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [productToDelete, setProductToDelete] = useState<{ id: number, nome: string } | null>(null);
+    
+    // Estado para Alertas
+    const [alert, setAlert] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
+
+    const showAlert = useCallback((message: string, type: 'success' | 'error') => {
+        setAlert({ message, type });
+        setTimeout(() => setAlert(null), 3000); 
+    }, []);
+
+    // Manipuladores de Ações
+    
+    const handleOpenNewModal = () => {
+        setProductToEdit(null); // Limpa o produto para edição
+        setIsProductModalOpen(true);
+    };
+
+    const handleEdit = (product: Product) => {
+        setProductToEdit(product);
+        setIsProductModalOpen(true);
+    };
+
+    const handleDeleteClick = (id: number, nome: string) => {
+        setProductToDelete({ id, nome });
+        setIsDeleteModalOpen(true);
+    };
+    
+    const handleConfirmDelete = async () => {
+        if (productToDelete) {
+            const result = await deleteProduct(productToDelete.id);
+            showAlert(result.message, result.success ? 'success' : 'error');
+            setIsDeleteModalOpen(false);
+            setProductToDelete(null);
+        }
+    };
+
+    const handleCloseModal = () => {
+        setIsProductModalOpen(false);
+        setProductToEdit(null); // Garante que limpa o estado de edição
+    };
+
+    const handleCancelDelete = () => {
+        setIsDeleteModalOpen(false);
+        setProductToDelete(null);
+    };
+
+    // Renderização Condicional
+    let content;
+    if (isLoading) {
+        content = <div className="loading-message">Carregando produtos...</div>;
+    } else if (error) {
+        content = <div className="empty-message error-message">Erro ao carregar produtos. Verifique se a API está online.</div>;
+    } else if (products.length === 0) {
+        content = <div className="empty-message">Nenhum produto cadastrado. Clique em "Novo +" para começar.</div>;
+    } else {
+        content = products.map(product => (
+            <ProductCard 
+                key={product.id} 
+                product={product} 
+                onEdit={handleEdit} 
+                onDelete={handleDeleteClick} 
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+        ));
+    }
+
+    return (
+        <>
+            {/* Navbar */}
+            <header className="navbar">
+                <button className="nav-button back-button" onClick={() => window.history.back()}>
+                    <i className="fas fa-chevron-left"></i> Voltar
+                </button>
+                <h1 className="nav-title">Gestão de Produtos ✨</h1>
+                <button onClick={handleOpenNewModal} className="nav-button new-button">
+                    Novo <i className="fas fa-plus"></i>
+                </button>
+            </header>
+
+            {/* Alerta de Feedback */}
+            {alert && <Alert message={alert.message} type={alert.type} />}
+
+            {/* Grid de Produtos */}
+            <main className="product-grid-container">
+                <div className="product-grid">
+                    {content}
+                </div>
+            </main>
+
+            {/* Modal de Cadastro/Edição */}
+            <ProductModal
+                isOpen={isProductModalOpen}
+                onClose={handleCloseModal}
+                onSave={saveProduct}
+                productToEdit={productToEdit}
+                showAlert={showAlert}
+            />
+
+            {/* Modal de Confirmação de Exclusão */}
+            <div id="delete-modal" className={`modal-backdrop ${isDeleteModalOpen ? '' : 'hidden'}`}>
+                <div className="modal-card small-card">
+                    <h2>Confirmar Exclusão</h2>
+                    <p>Tem certeza que deseja excluir o produto: 
+                        <strong id="product-name-to-delete">{productToDelete?.nome}</strong>?
+                    </p>
+                    <div className="button-group">
+                        <button onClick={handleConfirmDelete} className="delete-button">Excluir</button>
+                        <button onClick={handleCancelDelete} className="cancel-button">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </>
+    );
 }
