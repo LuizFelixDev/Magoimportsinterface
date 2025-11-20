@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Produtos - Mago Imports</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <button id="btn-voltar" class="nav-button back-button">
+            <i class="fas fa-chevron-left"></i> Voltar
+        </button>
+        <h1 class="nav-title">Gestão de Produtos</h1>
+        <button id="btn-novo-produto" class="nav-button new-button">
+            Novo <i class="fas fa-plus"></i>
+        </button>
+    </header>
+
+    <main class="product-grid-container">
+        <div id="product-grid" class="product-grid">
+            </div>
+    </main>
+    
+    <div id="product-modal" class="modal-backdrop hidden">
+        <div class="modal-card">
+            <h2 id="modal-title">Cadastrar Novo Produto</h2>
+            <form id="product-form" class="form-container">
+                <input type="hidden" id="product-id">
+
+                <div class="input-group">
+                    <label for="nome">Nome do Produto</label>
+                    <input type="text" id="nome" name="nome" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="preco">Preço (R$)</label>
+                    <input type="number" id="preco" name="preco" step="0.01" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="quantidade_em_estoque">Estoque</label>
+                    <input type="number" id="quantidade_em_estoque" name="quantidade_em_estoque" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="descricao">Descrição</label>
+                    <textarea id="descricao" name="descricao" rows="3"></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label for="imagens">URL da Imagem (Ex: "url1.jpg,url2.png")</label>
+                    <input type="text" id="imagens" name="imagens">
+                </div>
+                
+                <div class="input-group radio-group">
+                    <label>Ativo:</label>
+                    <input type="radio" id="ativo-sim" name="ativo" value="1" checked> <label for="ativo-sim">Sim</label>
+                    <input type="radio" id="ativo-nao" name="ativo" value="0"> <label for="ativo-nao">Não</label>
+                </div>
+
+                <button type="submit" id="btn-submit" class="register-button">Cadastrar</button>
+            </form>
+            <button id="btn-cancelar" class="cancel-button">Cancelar</button>
+        </div>
+    </div>
+    
+    <div id="delete-modal" class="modal-backdrop hidden">
+        <div class="modal-card small-card">
+            <h2>Confirmar Exclusão</h2>
+            <p>Tem certeza que deseja excluir o produto: <strong id="product-name-to-delete"></strong>?</p>
+            <div class="button-group">
+                <button id="btn-confirm-delete" class="delete-button">Excluir</button>
+                <button id="btn-cancel-delete" class="cancel-button">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
