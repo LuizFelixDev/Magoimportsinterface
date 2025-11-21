@@ -11,13 +11,22 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product, onEdit, onDelete }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     
-    // Função para obter o URL da imagem
+    // CORREÇÃO DEFINITIVA: Garante que o src nunca será nulo ou uma string vazia.
     const getImageUrl = (imagens: Product['imagens']) => {
+        let firstImageUrl = '';
+
         if (Array.isArray(imagens) && imagens.length > 0) {
-            return imagens[0];
+            // Procura pelo primeiro URL que seja uma string não vazia
+            const foundUrl = imagens.find(url => typeof url === 'string' && url.trim() !== '');
+            if (foundUrl) {
+                firstImageUrl = foundUrl.trim();
+            }
         }
-        // Retorna um placeholder amigável ao Next/Image
-        // ATENÇÃO: Certifique-se que 'https://via.placeholder.com' esteja configurado no next.config.js
+        
+        // Se a busca falhar, retorna o placeholder configurado
+        if (firstImageUrl) {
+            return firstImageUrl;
+        }
         return 'https://via.placeholder.com/300x200?text=Sem+Imagem';
     };
 
@@ -26,7 +35,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onEdit, onDelete }) 
 
     return (
         <div className="product-card">
-            {/* O componente Image do Next.js */}
+            {/* O componente Image agora recebe apenas strings válidas */}
             <Image 
                 src={imageUrl} 
                 alt={product.nome} 
@@ -34,7 +43,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onEdit, onDelete }) 
                 width={300}
                 height={200}
                 style={{ objectFit: 'cover' }}
-                unoptimized={imageUrl.includes('placeholder')} // Otimiza para imagens locais, ignora para placeholder
+                unoptimized={imageUrl.includes('placeholder')}
             />
             
             <div className="product-info">

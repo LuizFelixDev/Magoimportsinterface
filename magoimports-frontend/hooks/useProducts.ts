@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
 // Tipagem baseada em src/routes/products.ts
-interface Product {
+export interface Product { 
     id: number;
     nome: string;
     descricao: string | null;
@@ -16,7 +16,6 @@ interface Product {
     preco: number;
     preco_promocional: number | null;
     peso: number | null;
-    // O backend retorna 'imagens' como string JSON, mas o React usará o array.
     imagens: string[] | string | null; 
     data_de_cadastro: string;
     ativo: 0 | 1;
@@ -34,6 +33,15 @@ export interface ProductFormData {
 
 const API_URL = 'http://localhost:2020/products';
 
+// Função auxiliar para substituir URLs de mock problemáticas
+const cleanUpImageUrl = (url: string): string => {
+    if (typeof url === 'string' && url.startsWith('http://seusite.com')) {
+        // Substitui a URL 403 por um placeholder funcional para evitar o erro de rede
+        return 'https://via.placeholder.com/300x200?text=Mock+Data+Cleaned';
+    }
+    return url;
+};
+
 export const useProducts = () => {
     const [products, setProducts] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -41,16 +49,25 @@ export const useProducts = () => {
 
     // Função auxiliar para processar dados de imagem do backend (string JSON para Array)
     const processProductData = (data: any): Product => {
+        let processedImages: string[] = [];
+
         if (data.imagens && typeof data.imagens === 'string') {
             try {
-                data.imagens = JSON.parse(data.imagens);
+                // 1. Tenta fazer o parse do JSON
+                let images = JSON.parse(data.imagens);
+                if (Array.isArray(images)) {
+                     processedImages = images.map((img: string) => cleanUpImageUrl(img.trim()));
+                }
             } catch (e) {
-                // Em caso de falha no parse, trata como string simples de URL (ou array se for apenas um)
-                data.imagens = [data.imagens];
+                // 2. Se o parse falhar, trata como string simples e aplica o cleanup
+                processedImages = [cleanUpImageUrl(data.imagens.trim())];
             }
-        } else if (!data.imagens) {
-             data.imagens = [];
+        } else if (Array.isArray(data.imagens)) {
+            // 3. Aplica o cleanup se já for um array (e.g., em respostas PUT)
+            processedImages = data.imagens.map((img: string) => cleanUpImageUrl(img.trim()));
         }
+        
+        data.imagens = processedImages.filter(img => img !== ''); // Remove strings vazias
         return data as Product;
     };
     

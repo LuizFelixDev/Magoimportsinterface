@@ -88,7 +88,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
              return;
         }
 
-        const result = await onSave(dataToSave, isEditMode ? productToEdit.id : null);
+        const result = await onSave(dataToSave, isEditMode ? productToEdit!.id : null);
 
         if (result.success) {
             showAlert(result.message, result.success ? 'success' : 'error');
@@ -112,7 +112,6 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
 
                     <div className="input-group">
                         <label htmlFor="preco">Preço (R$)</label>
-                        {/* Usando value como string para permitir entradas parciais e formatação no futuro */}
                         <input type="number" id="preco" name="preco" step="0.01" value={formData.preco} onChange={handleNumberChange} required />
                     </div>
 

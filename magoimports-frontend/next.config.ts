@@ -1,17 +1,14 @@
 import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  // Adicione esta configuração para permitir imagens de URLs externas
+// Conteúdo esperado em next.config.ts
+const nextConfig = {
   images: {
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'via.placeholder.com',
-        port: '',
-        pathname: '/**',
-      },
+      { protocol: 'https', hostname: 'via.placeholder.com', port: '', pathname: '/**' },
+      { protocol: 'http', hostname: 'seusite.com', port: '', pathname: '/img/**' },
     ],
   },
 };
+
+// Conteúdo esperado em next.config.ts
 
 export default nextConfig;

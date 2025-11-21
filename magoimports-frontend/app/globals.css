@@ -3,7 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  /* Mantenha as variáveis de cor e adicione as customizadas para o tema claro */
+  /* Variáveis de Cores e Estilos */
   --primary-color: #5d5dff; 
   --secondary-color: #4b4bdf;
   --background-color: #f7f9fc;
@@ -37,22 +37,362 @@
 }
 
 body {
-    /* Remova font-family: Arial, Helvetica, sans-serif; para usar a fonte Next/Geist */
     background-color: var(--background-color);
     color: var(--text-color);
     line-height: 1.6;
 }
 
-/* Adicione AQUI TODO O CONTEÚDO RESTANTE do seu style.css original */
-
 /* 1. Barra de Navegação (Navbar) */
 .navbar {
     display: flex;
-    /* ... o restante do CSS da navbar ... */
-    /* Usando cores do tema claro/escuro com fallback */
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 5%;
     background-color: var(--card-background);
-    color: var(--text-color);
-    /* ... */
+    box-shadow: var(--shadow-light);
+    border-bottom-left-radius: var(--border-radius-xl);
+    border-bottom-right-radius: var(--border-radius-xl);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
-/* ... etc. Cole todo o CSS do style.css original aqui ... */
-/* Se houver conflitos, você terá que resolver manualmente, mas o Tailwind não deve interferir nas classes customizadas */
+
+.nav-title {
+    font-size: 1.5em;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.nav-button {
+    background: none;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-weight: 500;
+    border-radius: var(--border-radius-l);
+    transition: background-color var(--transition-speed), transform var(--transition-speed);
+}
+
+.back-button {
+    color: var(--primary-color);
+}
+
+.new-button {
+    background-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 8px rgba(93, 93, 255, 0.4);
+}
+
+.nav-button:hover {
+    background-color: rgba(93, 93, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.new-button:hover {
+    background-color: var(--secondary-color);
+    box-shadow: 0 6px 15px rgba(93, 93, 255, 0.5);
+}
+
+/* Conteúdo Principal e Grid de Produtos */
+.product-grid-container {
+    padding: 30px 5%;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+/* Card de Produto */
+.product-card {
+    background-color: var(--card-background);
+    border-radius: var(--border-radius-xl);
+    box-shadow: var(--shadow-light);
+    overflow: hidden;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: transform var(--transition-speed) ease-out, box-shadow var(--transition-speed) ease-out;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.product-image {
+    width: 100%;
+    height: 200px;
+    background-color: #e0e0e0; /* Placeholder para imagem */
+    border-radius: var(--border-radius-l);
+    object-fit: cover;
+    margin-bottom: 15px;
+}
+
+.product-info {
+    flex-grow: 1;
+}
+
+.product-title {
+    font-size: 1.3em;
+    margin-bottom: 5px;
+    color: var(--primary-color);
+}
+
+.product-price {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #4CAF50; /* Verde para preço */
+    margin-bottom: 10px;
+}
+
+.product-description {
+    font-size: 0.9em;
+    color: #666;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+/* Menu de Ações (3 pontinhos) */
+.actions-menu {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+}
+
+.menu-button {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.menu-button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 35px;
+    right: 0;
+    background-color: var(--card-background);
+    border-radius: var(--border-radius-l);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    z-index: 500;
+    min-width: 120px;
+    /* Animação de entrada */
+    opacity: 0;
+    transform: scale(0.9) translateY(-10px);
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.dropdown-menu.visible {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+}
+
+.dropdown-menu button {
+    display: block;
+    width: 100%;
+    padding: 10px 15px;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-color);
+    transition: background-color 0.2s;
+}
+
+.dropdown-menu button:hover {
+    background-color: var(--background-color);
+}
+
+.dropdown-menu button.delete {
+    color: #d32f2f; /* Vermelho para exclusão */
+}
+
+/* 2. Modal (Formulário) */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    /* Animação de entrada/saída */
+    transition: opacity var(--transition-speed) ease;
+    opacity: 1;
+}
+
+.modal-backdrop.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal-card {
+    background-color: var(--card-background);
+    padding: 30px;
+    border-radius: var(--border-radius-xl);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    /* Animação de entrada/saída do card */
+    transform: translateY(0);
+    transition: transform var(--transition-speed) ease-in-out;
+}
+
+.modal-backdrop.hidden .modal-card {
+    transform: translateY(-50px);
+}
+
+.small-card {
+    max-width: 400px;
+    text-align: center;
+}
+
+/* Estilização do Formulário */
+.form-container h2 {
+    margin-bottom: 20px;
+    color: var(--primary-color);
+}
+
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.input-group input[type="text"],
+.input-group input[type="number"],
+.input-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: var(--border-radius-l);
+    font-size: 1em;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-group input:focus,
+.input-group textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(93, 93, 255, 0.2);
+    outline: none;
+}
+
+.radio-group label {
+    display: inline-block;
+    margin-right: 15px;
+}
+
+/* Botões do Formulário */
+.register-button, .delete-button, .cancel-button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: var(--border-radius-l);
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: transform 0.2s, opacity 0.2s, background-color 0.2s;
+}
+
+.register-button {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.register-button:hover {
+    background-color: var(--secondary-color);
+    transform: scale(1.02);
+}
+
+.delete-button {
+    background-color: #d32f2f;
+    color: white;
+    margin-right: 10px;
+}
+
+.delete-button:hover {
+    background-color: #b00020;
+    transform: scale(1.02);
+}
+
+.cancel-button {
+    background-color: #e0e0e0;
+    color: var(--text-color);
+}
+
+.cancel-button:hover {
+    background-color: #ccc;
+    transform: scale(1.02);
+}
+
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.button-group button {
+    width: 48%;
+    margin: 0;
+}
+
+/* Mensagens de Alerta/Feedback */
+.alert {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 15px 30px;
+    border-radius: var(--border-radius-l);
+    box-shadow: var(--shadow-light);
+    color: white;
+    z-index: 3000;
+    opacity: 0;
+    transition: opacity 0.5s, transform 0.5s;
+}
+
+.alert.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.alert.success {
+    background-color: #4CAF50;
+}
+
+.alert.error {
+    background-color: #d32f2f;
+}
+
+/* Placeholder para o estado de Carregamento/Vazio */
+.loading-message, .empty-message {
+    text-align: center;
+    padding: 50px;
+    grid-column: 1 / -1;
+    font-size: 1.2em;
+    color: #999;
+}
