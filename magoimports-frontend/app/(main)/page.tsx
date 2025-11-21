@@ -2,11 +2,14 @@
 import Link from 'next/link';
 import React from 'react';
 import { useRouter } from 'next/navigation';
+// Importar a imagem e o componente Image
+import Image from 'next/image';
+import MagoLogo from '@/imagens/image.png'; 
 
 // URLs (Usaremos URLs de placeholder para as rotas que ainda não existem)
 const menuItems = [
     { name: "Produtos", icon: "fas fa-box-open", href: "/products", status: "Pronto" },
-    { name: "Vendas", icon: "fas fa-shopping-cart", href: "/sales", status: "Pronto" }, // <-- ALTERADO PARA "Pronto"
+    { name: "Vendas", icon: "fas fa-shopping-cart", href: "/sales", status: "Pronto" },
     { name: "Receitas & Despesas", icon: "fas fa-money-check-alt", href: "/finance", status: "Em Breve" },
     { name: "Relatórios", icon: "fas fa-chart-line", href: "/reports", status: "Em Breve" },
     { name: "Usuários", icon: "fas fa-users-cog", href: "/users", status: "Em Breve" },
@@ -25,8 +28,15 @@ const MainMenuPage: React.FC = () => {
 
     return (
         <div className="main-menu-container">
-            <h1 className="main-title">MagoimportSystem</h1>
-            
+            {/* Margem inferior ajustada para 20px (aproximadamente 1 ou 2 linhas) */}
+            <Image 
+                src={MagoLogo} 
+                alt="Logo Mago Imports" 
+                width={400} 
+                height={400}
+                style={{ marginBottom: '20px' }} // Margem restaurada para 20px
+                priority 
+            />
             
             <div className="menu-grid">
                 {menuItems.map((item) => (
