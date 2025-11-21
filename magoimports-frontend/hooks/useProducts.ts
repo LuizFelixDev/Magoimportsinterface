@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-// Tipagem baseada em src/routes/products.ts
+// CORREÇÃO: Exportado para ser usado em outros módulos
 export interface Product { 
     id: number;
     nome: string;
@@ -21,22 +21,20 @@ export interface Product {
     ativo: 0 | 1;
 }
 
-// Interface para os dados do formulário
 export interface ProductFormData {
     nome: string;
     preco: number;
     quantidade_em_estoque: number;
     descricao?: string;
-    imagens?: string; // string de URLs separadas por vírgula no formulário
+    imagens?: string; 
     ativo: 0 | 1;
 }
 
 const API_URL = 'http://localhost:2020/products';
 
-// Função auxiliar para substituir URLs de mock problemáticas
+// Função auxiliar para substituir URLs de mock problemáticas (403 Forbidden)
 const cleanUpImageUrl = (url: string): string => {
     if (typeof url === 'string' && url.startsWith('http://seusite.com')) {
-        // Substitui a URL 403 por um placeholder funcional para evitar o erro de rede
         return 'https://via.placeholder.com/300x200?text=Mock+Data+Cleaned';
     }
     return url;
@@ -47,31 +45,26 @@ export const useProducts = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Função auxiliar para processar dados de imagem do backend (string JSON para Array)
     const processProductData = (data: any): Product => {
         let processedImages: string[] = [];
 
         if (data.imagens && typeof data.imagens === 'string') {
             try {
-                // 1. Tenta fazer o parse do JSON
                 let images = JSON.parse(data.imagens);
                 if (Array.isArray(images)) {
                      processedImages = images.map((img: string) => cleanUpImageUrl(img.trim()));
                 }
             } catch (e) {
-                // 2. Se o parse falhar, trata como string simples e aplica o cleanup
                 processedImages = [cleanUpImageUrl(data.imagens.trim())];
             }
         } else if (Array.isArray(data.imagens)) {
-            // 3. Aplica o cleanup se já for um array (e.g., em respostas PUT)
             processedImages = data.imagens.map((img: string) => cleanUpImageUrl(img.trim()));
         }
         
-        data.imagens = processedImages.filter(img => img !== ''); // Remove strings vazias
+        data.imagens = processedImages.filter(img => img !== ''); 
         return data as Product;
     };
     
-    // Função para buscar produtos (READ)
     const fetchProducts = useCallback(async () => {
         setIsLoading(true);
         setError(null);
@@ -90,14 +83,12 @@ export const useProducts = () => {
         }
     }, []);
 
-    // Função para criar/atualizar produto (CREATE/UPDATE)
     const saveProduct = async (formData: ProductFormData, id: number | null = null) => {
         setError(null);
         try {
             const method = id ? 'PUT' : 'POST';
             const url = id ? `${API_URL}/${id}` : API_URL;
 
-            // Prepara os dados para a API (converte a string de URLs para string JSON)
             const imagensArray = formData.imagens 
                 ? formData.imagens.split(',').map(s => s.trim()).filter(s => s.length > 0)
                 : [];
@@ -107,7 +98,7 @@ export const useProducts = () => {
                 preco: Number(formData.preco),
                 quantidade_em_estoque: Number(formData.quantidade_em_estoque),
                 ativo: Number(formData.ativo),
-                imagens: JSON.stringify(imagensArray), // API espera string JSON
+                imagens: JSON.stringify(imagensArray),
             };
             
             const response = await fetch(url, {
@@ -121,7 +112,6 @@ export const useProducts = () => {
                 throw new Error(errorData.error || `Erro HTTP: ${response.status}`);
             }
 
-            // Atualiza o estado após o sucesso
             await fetchProducts(); 
             return { success: true, message: `Produto ${id ? 'atualizado' : 'cadastrado'} com sucesso!` };
 
@@ -131,7 +121,6 @@ export const useProducts = () => {
         }
     };
     
-    // Função para deletar produto (DELETE)
     const deleteProduct = async (id: number) => {
         setError(null);
         try {
@@ -139,12 +128,11 @@ export const useProducts = () => {
                 method: 'DELETE',
             });
 
-            if (response.status !== 204) { // Espera 204 No Content para sucesso
+            if (response.status !== 204) { 
                 const errorData = await response.json();
                 throw new Error(errorData.error || `Erro HTTP: ${response.status}`);
             }
 
-            // Atualiza o estado removendo o produto deletado (Reatividade)
             setProducts(prev => prev.filter(p => p.id !== id));
             return { success: true, message: 'Produto excluído com sucesso!' };
 

@@ -1,16 +1,15 @@
 'use client'; 
 import React, { useState, useCallback } from 'react';
-import { useProducts, Product } from '@/hooks/useProducts'; 
-import ProductCard from '@/components/ProductCard'; 
-import ProductModal from '@/components/ProductModal'; 
+import { useSales, Sale } from '../../hooks/useSales'; 
+import SaleCard from '../../components/SaleCard'; 
+import SaleModal from '../../components/SaleModal';
 
-// Componente para a mensagem de alerta (para reatividade e animações)
+// Componente para a mensagem de alerta (Reutilizado do Products)
 const Alert = ({ message, type }: { message: string, type: 'success' | 'error' }) => {
     const [isVisible, setIsVisible] = useState(true);
 
     if (!isVisible) return null;
 
-    // Esconde o alerta após 3 segundos
     setTimeout(() => setIsVisible(false), 3000);
 
     return (
@@ -20,19 +19,15 @@ const Alert = ({ message, type }: { message: string, type: 'success' | 'error' }
     );
 };
 
-// Componente da Página Principal (usa 'use client' para interatividade)
-export default function HomePage() {
-    const { products, isLoading, error, saveProduct, deleteProduct } = useProducts();
+export default function SalesManagerPage() {
+    const { sales, isLoading, error, saveSale, deleteSale } = useSales();
     
-    // Estados para o Modal de Cadastro/Edição
-    const [isProductModalOpen, setIsProductModalOpen] = useState(false);
-    const [productToEdit, setProductToEdit] = useState<Product | null>(null);
+    const [isSaleModalOpen, setIsSaleModalOpen] = useState(false);
+    const [saleToEdit, setSaleToEdit] = useState<Sale | null>(null);
     
-    // Estados para o Modal de Exclusão
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-    const [productToDelete, setProductToDelete] = useState<{ id: number, nome: string } | null>(null);
+    const [saleToDelete, setSaleToDelete] = useState<{ id: number, nome: string } | null>(null);
     
-    // Estado para Alertas
     const [alert, setAlert] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
 
     const showAlert = useCallback((message: string, type: 'success' | 'error') => {
@@ -40,55 +35,52 @@ export default function HomePage() {
         setTimeout(() => setAlert(null), 3000); 
     }, []);
 
-    // Manipuladores de Ações
-    
     const handleOpenNewModal = () => {
-        setProductToEdit(null); // Limpa o produto para edição
-        setIsProductModalOpen(true);
+        setSaleToEdit(null);
+        setIsSaleModalOpen(true);
     };
 
-    const handleEdit = (product: Product) => {
-        setProductToEdit(product);
-        setIsProductModalOpen(true);
+    const handleEdit = (sale: Sale) => {
+        setSaleToEdit(sale);
+        setIsSaleModalOpen(true);
     };
 
-    const handleDeleteClick = (id: number, nome: string) => {
-        setProductToDelete({ id, nome });
+    const handleDeleteClick = (id: number, cliente: string) => {
+        setSaleToDelete({ id, nome: cliente });
         setIsDeleteModalOpen(true);
     };
     
     const handleConfirmDelete = async () => {
-        if (productToDelete) {
-            const result = await deleteProduct(productToDelete.id);
+        if (saleToDelete) {
+            const result = await deleteSale(saleToDelete.id);
             showAlert(result.message, result.success ? 'success' : 'error');
             setIsDeleteModalOpen(false);
-            setProductToDelete(null);
+            setSaleToDelete(null);
         }
     };
 
     const handleCloseModal = () => {
-        setIsProductModalOpen(false);
-        setProductToEdit(null); // Garante que limpa o estado de edição
+        setIsSaleModalOpen(false);
+        setSaleToEdit(null);
     };
 
     const handleCancelDelete = () => {
         setIsDeleteModalOpen(false);
-        setProductToDelete(null);
+        setSaleToDelete(null);
     };
 
-    // Renderização Condicional
     let content;
     if (isLoading) {
-        content = <div className="loading-message">Carregando produtos...</div>;
+        content = <div className="loading-message">Carregando vendas...</div>;
     } else if (error) {
-        content = <div className="empty-message error-message">Erro ao carregar produtos. Verifique se a API está online.</div>;
-    } else if (products.length === 0) {
-        content = <div className="empty-message">Nenhum produto cadastrado. Clique em "Novo +" para começar.</div>;
+        content = <div className="empty-message error-message">Erro ao carregar vendas: {error}. Verifique se a API está online.</div>;
+    } else if (sales.length === 0) {
+        content = <div className="empty-message">Nenhuma venda cadastrada. Clique em "Novo +" para registrar uma venda.</div>;
     } else {
-        content = products.map(product => (
-            <ProductCard 
-                key={product.id} 
-                product={product} 
+        content = sales.map(sale => (
+            <SaleCard 
+                key={sale.id} 
+                sale={sale} 
                 onEdit={handleEdit} 
                 onDelete={handleDeleteClick} 
             />
@@ -97,42 +89,37 @@ export default function HomePage() {
 
     return (
         <>
-            {/* Navbar */}
             <header className="navbar">
                 <button className="nav-button back-button" onClick={() => window.history.back()}>
                     <i className="fas fa-chevron-left"></i> Voltar
                 </button>
-                <h1 className="nav-title">Gestão de Produtos ✨</h1>
+                <h1 className="nav-title">Gestão de Vendas - MagoImportes</h1>
                 <button onClick={handleOpenNewModal} className="nav-button new-button">
                     Novo <i className="fas fa-plus"></i>
                 </button>
             </header>
 
-            {/* Alerta de Feedback */}
             {alert && <Alert message={alert.message} type={alert.type} />}
 
-            {/* Grid de Produtos */}
             <main className="product-grid-container">
                 <div className="product-grid">
                     {content}
                 </div>
             </main>
 
-            {/* Modal de Cadastro/Edição */}
-            <ProductModal
-                isOpen={isProductModalOpen}
+            <SaleModal
+                isOpen={isSaleModalOpen}
                 onClose={handleCloseModal}
-                onSave={saveProduct}
-                productToEdit={productToEdit}
+                onSave={saveSale}
+                saleToEdit={saleToEdit}
                 showAlert={showAlert}
             />
 
-            {/* Modal de Confirmação de Exclusão */}
             <div id="delete-modal" className={`modal-backdrop ${isDeleteModalOpen ? '' : 'hidden'}`}>
                 <div className="modal-card small-card">
                     <h2>Confirmar Exclusão</h2>
-                    <p>Tem certeza que deseja excluir o produto: 
-                        <strong id="product-name-to-delete">{productToDelete?.nome}</strong>?
+                    <p>Tem certeza que deseja excluir a venda de: 
+                        <strong id="sale-name-to-delete">{saleToDelete?.nome}</strong>?
                     </p>
                     <div className="button-group">
                         <button onClick={handleConfirmDelete} className="delete-button">Excluir</button>

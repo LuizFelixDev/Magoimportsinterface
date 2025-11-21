@@ -1,4 +1,3 @@
-import type { NextConfig } from "next";
 // Conteúdo esperado em next.config.ts
 const nextConfig = {
   images: {
@@ -8,7 +7,3 @@ const nextConfig = {
     ],
   },
 };
-
-// Conteúdo esperado em next.config.ts
-
-export default nextConfig;

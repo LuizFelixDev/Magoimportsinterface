@@ -11,19 +11,17 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product, onEdit, onDelete }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     
-    // CORREÇÃO DEFINITIVA: Garante que o src nunca será nulo ou uma string vazia.
+    // CORREÇÃO: Garante que o src do Image Component é sempre uma string de URL válida.
     const getImageUrl = (imagens: Product['imagens']) => {
         let firstImageUrl = '';
 
         if (Array.isArray(imagens) && imagens.length > 0) {
-            // Procura pelo primeiro URL que seja uma string não vazia
             const foundUrl = imagens.find(url => typeof url === 'string' && url.trim() !== '');
             if (foundUrl) {
                 firstImageUrl = foundUrl.trim();
             }
         }
         
-        // Se a busca falhar, retorna o placeholder configurado
         if (firstImageUrl) {
             return firstImageUrl;
         }
@@ -35,7 +33,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onEdit, onDelete }) 
 
     return (
         <div className="product-card">
-            {/* O componente Image agora recebe apenas strings válidas */}
             <Image 
                 src={imageUrl} 
                 alt={product.nome} 
@@ -52,7 +49,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onEdit, onDelete }) 
                 <p className="product-description">{product.descricao || 'Sem descrição.'}</p>
             </div>
             
-            {/* Menu de Ações (3 pontinhos) */}
             <div className="actions-menu">
                 <button 
                     className="menu-button" 

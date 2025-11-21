@@ -21,10 +21,8 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
     
     const isEditMode = !!productToEdit;
 
-    // Efeito para preencher o formulário quando um produto para edição é passado
     useEffect(() => {
         if (productToEdit) {
-            // Processa o campo 'imagens' para a string de URLs separadas por vírgula no formulário
             let imageUrls = '';
             const images = Array.isArray(productToEdit.imagens) 
                 ? productToEdit.imagens 
@@ -42,7 +40,6 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                 ativo: productToEdit.ativo,
             });
         } else {
-            // Limpa o formulário para o modo de cadastro
             setFormData({
                 nome: '',
                 preco: 0,
@@ -65,7 +62,6 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
     
     const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        // Trata a entrada como string para campos de número
         setFormData(prev => ({
             ...prev,
             [name]: value,
@@ -75,14 +71,12 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        // Coleta os valores do formulário e converte para os tipos corretos
         const dataToSave: ProductFormData = {
              ...formData,
              preco: parseFloat(formData.preco.toString()),
              quantidade_em_estoque: parseInt(formData.quantidade_em_estoque.toString()),
         };
 
-        // Validação básica (campos obrigatórios)
         if (!dataToSave.nome || isNaN(dataToSave.preco) || isNaN(dataToSave.quantidade_em_estoque)) {
              showAlert('Por favor, preencha todos os campos obrigatórios.', 'error');
              return;
@@ -98,7 +92,6 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
         }
     };
     
-    // A classe 'hidden' é controlada via CSS e a prop 'isOpen'
     return (
         <div className={`modal-backdrop ${isOpen ? '' : 'hidden'}`}>
             <div className="modal-card">

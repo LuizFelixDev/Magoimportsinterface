@@ -4,8 +4,8 @@
   --background: #ffffff;
   --foreground: #171717;
   /* Variáveis de Cores e Estilos */
-  --primary-color: #5d5dff; 
-  --secondary-color: #4b4bdf;
+  --primary-color: #fbff00; 
+  --secondary-color: #bbb93dc0;
   --background-color: #f7f9fc;
   --card-background: #ffffff;
   --text-color: #333333;
@@ -60,7 +60,7 @@ body {
 .nav-title {
     font-size: 1.5em;
     font-weight: 600;
-    color: var(--primary-color);
+    color: black;
 }
 
 .nav-button {
@@ -74,13 +74,13 @@ body {
 }
 
 .back-button {
-    color: var(--primary-color);
+    color: black;
 }
 
 .new-button {
     background-color: var(--primary-color);
-    color: white;
-    box-shadow: 0 4px 8px rgba(93, 93, 255, 0.4);
+    color: black;
+    box-shadow: 0 4px 8px rgba(8, 8, 8, 0.4);
 }
 
 .nav-button:hover {
@@ -138,13 +138,13 @@ body {
 .product-title {
     font-size: 1.3em;
     margin-bottom: 5px;
-    color: var(--primary-color);
+    color: black;
 }
 
 .product-price {
     font-size: 1.2em;
     font-weight: bold;
-    color: #4CAF50; /* Verde para preço */
+    color: #00ff08; /* Verde para preço */
     margin-bottom: 10px;
 }
 
@@ -381,7 +381,7 @@ body {
 }
 
 .alert.success {
-    background-color: #4CAF50;
+    background-color: #00ff08;
 }
 
 .alert.error {
@@ -395,4 +395,193 @@ body {
     grid-column: 1 / -1;
     font-size: 1.2em;
     color: #999;
+}
+
+/* --- ESTILOS DO MENU PRINCIPAL --- */
+
+.main-menu-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 30px;
+    background-color: var(--background-color);
+}
+
+.main-title {
+    font-size: 3.5em;
+    font-weight: 800;
+    color: black;
+    text-shadow: 2px 2px 8px rgba(216, 216, 245, 0.3);
+    margin-bottom: 50px;
+    letter-spacing: 2px;
+    text-align: center;
+}
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+    width: 100%;
+    max-width: 900px;
+}
+
+.menu-button-card {
+    background-color: var(--card-background);
+    border-radius: var(--border-radius-xl);
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: var(--shadow-light);
+    transition: transform 0.3s ease-out, box-shadow 0.3s ease-out, opacity 0.3s;
+    position: relative;
+    min-height: 180px;
+}
+
+.menu-button-card.ready:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 0 15px 30px rgba(93, 93, 255, 0.25);
+}
+
+.menu-icon {
+    font-size: 3em;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.menu-button-card.disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.menu-button-card.disabled:hover {
+    transform: none;
+    box-shadow: var(--shadow-light);
+}
+
+.button-title {
+    font-size: 1.2em;
+    font-weight: 600;
+    margin-top: 10px;
+    color: var(--text-color);
+}
+
+.status-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #ffc107;
+    color: #333;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 10px;
+    font-size: 0.7em;
+}
+
+.menu-button-card.ready .menu-icon {
+    color: var(--primary-color);
+}
+
+.menu-button-card.disabled .menu-icon {
+    color: #999;
+}
+
+/* --- ESTILOS DO MODAL DE VENDAS (ITEM MANAGER) --- */
+
+.item-manager {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.item-select {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: var(--border-radius-l);
+    background-color: #fff;
+    cursor: pointer;
+}
+
+.item-quantity-input {
+    width: 60px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: var(--border-radius-l);
+    text-align: center;
+}
+
+.add-item-button {
+    background-color: #4CAF50; /* Verde */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: var(--border-radius-l);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.add-item-button:hover {
+    background-color: #45a049;
+}
+
+.selected-items-list {
+    border: 1px solid #eee;
+    border-radius: var(--border-radius-l);
+    padding: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 10px;
+    background-color: var(--background-color);
+}
+
+.item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    border-bottom: 1px dashed #ddd;
+}
+
+.item-row:last-child {
+    border-bottom: none;
+}
+
+.remove-item-button {
+    background: none;
+    border: none;
+    color: #d32f2f;
+    cursor: pointer;
+    font-size: 0.9em;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.remove-item-button:hover {
+    background-color: rgba(211, 47, 47, 0.1);
+}
+
+.total-display {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.4em;
+    margin-top: 20px;
+    padding-top: 10px;
+    border-top: 2px solid var(--primary-color);
+}
+
+.total-price {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.mt-4 {
+    margin-top: 1rem;
 }
