@@ -3,15 +3,13 @@ import React, { useState, useCallback } from 'react';
 import { useProducts, Product } from '@/hooks/useProducts'; 
 import ProductCard from '@/components/ProductCard'; 
 import ProductModal from '@/components/ProductModal'; 
-import ProductDetailModal from '@/components/ProductDetailModal'; // NOVO IMPORT
+import ProductDetailModal from '@/components/ProductDetailModal';
 
-// Componente para a mensagem de alerta (para reatividade e animações)
 const Alert = ({ message, type }: { message: string, type: 'success' | 'error' }) => {
     const [isVisible, setIsVisible] = useState(true);
 
     if (!isVisible) return null;
 
-    // Esconde o alerta após 3 segundos
     setTimeout(() => setIsVisible(false), 3000);
 
     return (
@@ -21,23 +19,20 @@ const Alert = ({ message, type }: { message: string, type: 'success' | 'error' }
     );
 };
 
-// Componente da Página Principal (usa 'use client' para interatividade)
 export default function HomePage() {
     const { products, isLoading, error, saveProduct, deleteProduct } = useProducts();
     
-    // Estados para o Modal de Cadastro/Edição
+    const [searchTerm, setSearchTerm] = useState('');
+    
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
     const [productToEdit, setProductToEdit] = useState<Product | null>(null);
     
-    // NOVOS ESTADOS: Para o Modal de Visualização (Exibição ampliada)
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [productToView, setProductToView] = useState<Product | null>(null);
     
-    // Estados para o Modal de Exclusão
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [productToDelete, setProductToDelete] = useState<{ id: number, nome: string } | null>(null);
     
-    // Estado para Alertas
     const [alert, setAlert] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
 
     const showAlert = useCallback((message: string, type: 'success' | 'error') => {
@@ -45,26 +40,25 @@ export default function HomePage() {
         setTimeout(() => setAlert(null), 3000); 
     }, []);
 
-    // Manipuladores de Ações
-    
+    const filteredProducts = products.filter(product =>
+        product.nome.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     const handleOpenNewModal = () => {
         setProductToEdit(null); 
         setIsProductModalOpen(true);
     };
 
-    // Edit é apenas para o botão 'Alterar' no dropdown e dentro da modal de detalhes.
     const handleEdit = (product: Product) => {
         setProductToEdit(product);
         setIsProductModalOpen(true);
     };
     
-    // NOVO HANDLER: Abre o modal de visualização ao clicar no card
     const handleView = (product: Product) => {
         setProductToView(product);
         setIsDetailModalOpen(true);
     };
     
-    // NOVO HANDLER: Fecha o modal de visualização
     const handleCloseDetailModal = () => {
         setIsDetailModalOpen(false);
         setProductToView(null);
@@ -94,20 +88,23 @@ export default function HomePage() {
         setProductToDelete(null);
     };
 
-    // Renderização Condicional
     let content;
+    const productsToDisplay = searchTerm ? filteredProducts : products;
+
     if (isLoading) {
         content = <div className="loading-message">Carregando produtos...</div>;
     } else if (error) {
         content = <div className="empty-message error-message">Erro ao carregar produtos. Verifique se a API está online.</div>;
-    } else if (products.length === 0) {
+    } else if (products.length === 0 && !searchTerm) {
         content = <div className="empty-message">Nenhum produto cadastrado. Clique em "Novo +" para começar.</div>;
+    } else if (productsToDisplay.length === 0 && searchTerm) {
+        content = <div className="empty-message">Nenhum produto encontrado para o termo: <strong>"{searchTerm}"</strong>.</div>;
     } else {
-        content = products.map(product => (
+        content = productsToDisplay.map(product => (
             <ProductCard 
                 key={product.id} 
                 product={product} 
-                onView={handleView} // NOVO: Passa a função de visualização
+                onView={handleView} 
                 onEdit={handleEdit} 
                 onDelete={handleDeleteClick} 
             />
@@ -116,7 +113,6 @@ export default function HomePage() {
 
     return (
         <>
-            {/* Navbar */}
             <header className="navbar">
                 <button className="nav-button back-button" onClick={() => window.history.back()}>
                     <i className="fas fa-chevron-left"></i> Voltar
@@ -127,36 +123,43 @@ export default function HomePage() {
                 </button>
             </header>
 
-            {/* Alerta de Feedback */}
             {alert && <Alert message={alert.message} type={alert.type} />}
 
-            {/* Grid de Produtos */}
             <main className="product-grid-container">
+                <div className="search-bar-container">
+                    <i className="fas fa-search search-icon"></i>
+                    <input
+                        type="text"
+                        placeholder="Buscar produtos por nome..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="search-input"
+                    />
+                </div>
+                
                 <div className="product-grid">
                     {content}
                 </div>
             </main>
 
-            {/* NOVO MODAL: Modal de Detalhes do Produto (Visão Ampliada) */}
             <ProductDetailModal
                 isOpen={isDetailModalOpen}
                 onClose={handleCloseDetailModal}
                 product={productToView}
                 onEdit={() => {
-                    handleCloseDetailModal(); // Fecha o modal de visualização
+                    handleCloseDetailModal();
                     if (productToView) {
-                        handleEdit(productToView); // Abre o modal de edição
+                        handleEdit(productToView);
                     }
                 }}
                 onDelete={() => {
-                    handleCloseDetailModal(); // Fecha o modal de visualização
+                    handleCloseDetailModal();
                     if (productToView) {
-                         handleDeleteClick(productToView.id, productToView.nome); // Abre o modal de exclusão
+                         handleDeleteClick(productToView.id, productToView.nome);
                     }
                 }}
             />
 
-            {/* Modal de Cadastro/Edição */}
             <ProductModal
                 isOpen={isProductModalOpen}
                 onClose={handleCloseModal}
@@ -165,7 +168,6 @@ export default function HomePage() {
                 showAlert={showAlert}
             />
 
-            {/* Modal de Confirmação de Exclusão */}
             <div id="delete-modal" className={`modal-backdrop ${isDeleteModalOpen ? '' : 'hidden'}`}>
                 <div className="modal-card small-card">
                     <h2>Confirmar Exclusão</h2>
