@@ -38,8 +38,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onEdit, onDelete }) 
                 alt={product.nome} 
                 className="product-image" 
                 width={300}
-                height={200}
-                style={{ objectFit: 'cover' }}
+                height={300} // CORREÇÃO: Aumentado para 300px
+                style={{ objectFit: 'contain' }} // CORREÇÃO: Alterado de 'cover' para 'contain'
                 unoptimized={imageUrl.includes('placeholder')}
             />
             

@@ -3,8 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  /* Variáveis de Cores e Estilos */
-  --primary-color: #fbff00; 
+  --primary-color: #fbff00;
   --secondary-color: #bbb93dc0;
   --background-color: #f7f9fc;
   --card-background: #ffffff;
@@ -29,7 +28,6 @@
   }
 }
 
-/* Base e Reset */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -42,7 +40,6 @@ body {
     line-height: 1.6;
 }
 
-/* 1. Barra de Navegação (Navbar) */
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -93,7 +90,6 @@ body {
     box-shadow: 0 6px 15px rgba(93, 93, 255, 0.5);
 }
 
-/* Conteúdo Principal e Grid de Produtos */
 .product-grid-container {
     padding: 30px 5%;
 }
@@ -104,7 +100,6 @@ body {
     gap: 30px;
 }
 
-/* Card de Produto */
 .product-card {
     background-color: var(--card-background);
     border-radius: var(--border-radius-xl);
@@ -125,9 +120,9 @@ body {
 .product-image {
     width: 100%;
     height: 200px;
-    background-color: #e0e0e0; /* Placeholder para imagem */
+    background-color: #e0e0e0;
     border-radius: var(--border-radius-l);
-    object-fit: cover;
+    object-fit: contain;
     margin-bottom: 15px;
 }
 
@@ -144,7 +139,7 @@ body {
 .product-price {
     font-size: 1.2em;
     font-weight: bold;
-    color: #00ff08; /* Verde para preço */
+    color: #00ff08;
     margin-bottom: 10px;
 }
 
@@ -158,7 +153,6 @@ body {
     -webkit-box-orient: vertical;
 }
 
-/* Menu de Ações (3 pontinhos) */
 .actions-menu {
     position: absolute;
     top: 15px;
@@ -190,7 +184,6 @@ body {
     overflow: hidden;
     z-index: 500;
     min-width: 120px;
-    /* Animação de entrada */
     opacity: 0;
     transform: scale(0.9) translateY(-10px);
     transition: opacity 0.2s, transform 0.2s;
@@ -218,10 +211,9 @@ body {
 }
 
 .dropdown-menu button.delete {
-    color: #d32f2f; /* Vermelho para exclusão */
+    color: #d32f2f;
 }
 
-/* 2. Modal (Formulário) */
 .modal-backdrop {
     position: fixed;
     top: 0;
@@ -233,7 +225,6 @@ body {
     justify-content: center;
     align-items: center;
     z-index: 2000;
-    /* Animação de entrada/saída */
     transition: opacity var(--transition-speed) ease;
     opacity: 1;
 }
@@ -252,7 +243,6 @@ body {
     max-width: 500px;
     max-height: 90vh;
     overflow-y: auto;
-    /* Animação de entrada/saída do card */
     transform: translateY(0);
     transition: transform var(--transition-speed) ease-in-out;
 }
@@ -266,7 +256,6 @@ body {
     text-align: center;
 }
 
-/* Estilização do Formulário */
 .form-container h2 {
     margin-bottom: 20px;
     color: var(--primary-color);
@@ -305,7 +294,6 @@ body {
     margin-right: 15px;
 }
 
-/* Botões do Formulário */
 .register-button, .delete-button, .cancel-button {
     width: 100%;
     padding: 12px;
@@ -360,7 +348,6 @@ body {
     margin: 0;
 }
 
-/* Mensagens de Alerta/Feedback */
 .alert {
     position: fixed;
     top: 80px;
@@ -388,7 +375,6 @@ body {
     background-color: #d32f2f;
 }
 
-/* Placeholder para o estado de Carregamento/Vazio */
 .loading-message, .empty-message {
     text-align: center;
     padding: 50px;
@@ -396,8 +382,6 @@ body {
     font-size: 1.2em;
     color: #999;
 }
-
-/* --- ESTILOS DO MENU PRINCIPAL --- */
 
 .main-menu-container {
     display: flex;
@@ -491,8 +475,6 @@ body {
     color: #999;
 }
 
-/* --- ESTILOS DO MODAL DE VENDAS (ITEM MANAGER) --- */
-
 .item-manager {
     display: flex;
     gap: 10px;
@@ -518,7 +500,7 @@ body {
 }
 
 .add-item-button {
-    background-color: #4CAF50; /* Verde */
+    background-color: #4CAF50;
     color: white;
     border: none;
     padding: 10px 15px;
