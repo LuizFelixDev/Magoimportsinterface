@@ -4,14 +4,14 @@ import { Product } from '@/hooks/useProducts';
 
 interface ProductCardProps {
     product: Product;
+    onView: (product: Product) => void;
     onEdit: (product: Product) => void;
     onDelete: (id: number, nome: string) => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, onEdit, onDelete }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, onView, onEdit, onDelete }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     
-    // CORREÇÃO: Garante que o src do Image Component é sempre uma string de URL válida.
     const getImageUrl = (imagens: Product['imagens']) => {
         let firstImageUrl = '';
 
@@ -32,14 +32,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onEdit, onDelete }) 
     const formattedPrice = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.preco);
 
     return (
-        <div className="product-card">
+        <div className="product-card" onClick={() => onView(product)}>
             <Image 
                 src={imageUrl} 
                 alt={product.nome} 
                 className="product-image" 
                 width={300}
-                height={300} // CORREÇÃO: Aumentado para 300px
-                style={{ objectFit: 'contain' }} // CORREÇÃO: Alterado de 'cover' para 'contain'
+                height={300} 
+                style={{ objectFit: 'contain' }}
                 unoptimized={imageUrl.includes('placeholder')}
             />
             
@@ -63,11 +63,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onEdit, onDelete }) 
                 <div className={`dropdown-menu ${isMenuOpen ? 'visible' : ''}`} 
                      onMouseLeave={() => setIsMenuOpen(false)}>
                     
-                    <button onClick={() => onEdit(product)}>
+                    <button onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit(product);
+                        }}>
                         <i className="fas fa-pen"></i> Alterar
                     </button>
                     
-                    <button className="delete" onClick={() => onDelete(product.id, product.nome)}>
+                    <button className="delete" onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete(product.id, product.nome);
+                        }}>
                         <i className="fas fa-trash-alt"></i> Excluir
                     </button>
                 </div>

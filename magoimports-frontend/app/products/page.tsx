@@ -3,6 +3,7 @@ import React, { useState, useCallback } from 'react';
 import { useProducts, Product } from '@/hooks/useProducts'; 
 import ProductCard from '@/components/ProductCard'; 
 import ProductModal from '@/components/ProductModal'; 
+import ProductDetailModal from '@/components/ProductDetailModal'; // NOVO IMPORT
 
 // Componente para a mensagem de alerta (para reatividade e animações)
 const Alert = ({ message, type }: { message: string, type: 'success' | 'error' }) => {
@@ -28,6 +29,10 @@ export default function HomePage() {
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
     const [productToEdit, setProductToEdit] = useState<Product | null>(null);
     
+    // NOVOS ESTADOS: Para o Modal de Visualização (Exibição ampliada)
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+    const [productToView, setProductToView] = useState<Product | null>(null);
+    
     // Estados para o Modal de Exclusão
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [productToDelete, setProductToDelete] = useState<{ id: number, nome: string } | null>(null);
@@ -47,9 +52,22 @@ export default function HomePage() {
         setIsProductModalOpen(true);
     };
 
+    // Edit é apenas para o botão 'Alterar' no dropdown e dentro da modal de detalhes.
     const handleEdit = (product: Product) => {
         setProductToEdit(product);
         setIsProductModalOpen(true);
+    };
+    
+    // NOVO HANDLER: Abre o modal de visualização ao clicar no card
+    const handleView = (product: Product) => {
+        setProductToView(product);
+        setIsDetailModalOpen(true);
+    };
+    
+    // NOVO HANDLER: Fecha o modal de visualização
+    const handleCloseDetailModal = () => {
+        setIsDetailModalOpen(false);
+        setProductToView(null);
     };
 
     const handleDeleteClick = (id: number, nome: string) => {
@@ -89,6 +107,7 @@ export default function HomePage() {
             <ProductCard 
                 key={product.id} 
                 product={product} 
+                onView={handleView} // NOVO: Passa a função de visualização
                 onEdit={handleEdit} 
                 onDelete={handleDeleteClick} 
             />
@@ -117,6 +136,25 @@ export default function HomePage() {
                     {content}
                 </div>
             </main>
+
+            {/* NOVO MODAL: Modal de Detalhes do Produto (Visão Ampliada) */}
+            <ProductDetailModal
+                isOpen={isDetailModalOpen}
+                onClose={handleCloseDetailModal}
+                product={productToView}
+                onEdit={() => {
+                    handleCloseDetailModal(); // Fecha o modal de visualização
+                    if (productToView) {
+                        handleEdit(productToView); // Abre o modal de edição
+                    }
+                }}
+                onDelete={() => {
+                    handleCloseDetailModal(); // Fecha o modal de visualização
+                    if (productToView) {
+                         handleDeleteClick(productToView.id, productToView.nome); // Abre o modal de exclusão
+                    }
+                }}
+            />
 
             {/* Modal de Cadastro/Edição */}
             <ProductModal
