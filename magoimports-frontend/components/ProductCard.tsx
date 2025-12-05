@@ -25,11 +25,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onView, onEdit, onDe
         if (firstImageUrl) {
             return firstImageUrl;
         }
-        return 'https://via.placeholder.com/300x200?text=Sem+Imagem';
+        return 'https://via.placeholder.com/300x300?text=Sem+Imagem'; 
     };
 
     const imageUrl = getImageUrl(product.imagens);
     const formattedPrice = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.preco);
+    
+    const isLocalOrPlaceholder = imageUrl.startsWith('data:image/') || imageUrl.includes('placeholder');
 
     return (
         <div className="product-card" onClick={() => onView(product)}>
@@ -40,7 +42,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onView, onEdit, onDe
                 width={300}
                 height={300} 
                 style={{ objectFit: 'contain' }}
-                unoptimized={imageUrl.includes('placeholder')}
+                unoptimized={isLocalOrPlaceholder}
             />
             
             <div className="product-info">

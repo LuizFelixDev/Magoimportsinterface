@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 
-// CORREÇÃO: Exportado para ser usado em outros módulos
 export interface Product { 
     id: number;
     nome: string;
@@ -32,7 +31,10 @@ export interface ProductFormData {
 
 const API_URL = 'http://localhost:2020/products';
 
-// Função auxiliar para substituir URLs de mock problemáticas (403 Forbidden)
+const isDataUrl = (str: string): boolean => {
+    return str.startsWith('data:image/');
+};
+
 const cleanUpImageUrl = (url: string): string => {
     if (typeof url === 'string' && url.startsWith('http://seusite.com')) {
         return 'https://via.placeholder.com/300x200?text=Mock+Data+Cleaned';
@@ -89,16 +91,22 @@ export const useProducts = () => {
             const method = id ? 'PUT' : 'POST';
             const url = id ? `${API_URL}/${id}` : API_URL;
 
-            const imagensArray = formData.imagens 
-                ? formData.imagens.split(',').map(s => s.trim()).filter(s => s.length > 0)
-                : [];
+            let imagensArray: string[];
+            
+            if (formData.imagens && isDataUrl(formData.imagens.trim())) {
+                imagensArray = [formData.imagens.trim()];
+            } else if (formData.imagens) {
+                imagensArray = formData.imagens.split(',').map(s => s.trim()).filter(s => s.length > 0);
+            } else {
+                imagensArray = [];
+            }
 
             const dataToApi = {
                 ...formData,
                 preco: Number(formData.preco),
                 quantidade_em_estoque: Number(formData.quantidade_em_estoque),
                 ativo: Number(formData.ativo),
-                imagens: JSON.stringify(imagensArray),
+                imagens: JSON.stringify(imagensArray), 
             };
             
             const response = await fetch(url, {

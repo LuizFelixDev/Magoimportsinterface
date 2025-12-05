@@ -32,7 +32,8 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ isOpen, onClose
     const imageUrl = getImageUrl(product.imagens);
     const formattedPrice = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.preco);
     
-    // Estilo dos botões para reuso
+    const isLocalOrPlaceholder = imageUrl.startsWith('data:image/') || imageUrl.includes('placeholder');
+    
     const buttonStyle = {
         padding: '10px 15px',
         borderRadius: '8px',
@@ -45,7 +46,6 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ isOpen, onClose
 
     return (
         <div className="modal-backdrop" onClick={onClose}>
-            {/* Usa a classe modal-card padrão, mas com layout flex para o conteúdo ampliado */}
             <div 
                 className="modal-card" 
                 style={{ 
@@ -57,7 +57,6 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ isOpen, onClose
                 }} 
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Botão de Fechar */}
                 <button 
                     onClick={onClose} 
                     style={{ 
@@ -66,7 +65,7 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ isOpen, onClose
                         right: '15px', 
                         background: 'none', 
                         border: 'none', 
-                        color: 'var(--text-color)', // Coerente com o texto padrão
+                        color: 'var(--text-color)', 
                         fontSize: '1.5em', 
                         cursor: 'pointer' 
                     }}
@@ -74,7 +73,6 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ isOpen, onClose
                     <i className="fas fa-times"></i>
                 </button>
                 
-                {/* Coluna da Imagem */}
                 <div style={{ flexShrink: 0, width: '40%' }}>
                     <Image 
                         src={imageUrl} 
@@ -88,15 +86,12 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ isOpen, onClose
                             objectFit: 'contain', 
                             backgroundColor: 'var(--background-color)' 
                         }}
-                        unoptimized={imageUrl.includes('placeholder')}
+                        unoptimized={isLocalOrPlaceholder}
                     />
                 </div>
                 
-                {/* Coluna de Detalhes */}
                 <div style={{ flexGrow: 1 }}>
-                    {/* ALTERAÇÃO: Título na cor preta e negrito */}
                     <h2 style={{ fontSize: '1.8em', marginBottom: '10px', color: 'black', fontWeight: 'bold' }}>{product.nome}</h2>
-                    {/* Mantendo a cor do preço em destaque como nos outros cards */}
                     <p style={{ fontSize: '1.5em', fontWeight: 'bold', color: '#00ff08', marginBottom: '15px' }}>{formattedPrice}</p>
                     
                     <h3 style={{ fontSize: '1.1em', marginTop: '20px', marginBottom: '5px', color: 'var(--text-color)' }}>Descrição</h3>
@@ -106,11 +101,9 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ isOpen, onClose
                     <p style={{ fontSize: '0.9em', color: 'var(--text-color)' }}>{product.quantidade_em_estoque} unidades em estoque.</p>
 
                     <div style={{ display: 'flex', gap: '15px', marginTop: '30px' }}>
-                        {/* Botão Alterar usa a cor primária */}
                         <button onClick={onEdit} style={{...buttonStyle, background: 'var(--primary-color)', color: 'var(--foreground)' }}>
                             <i className="fas fa-pen"></i> Alterar Produto
                         </button>
-                        {/* Botão Excluir usa a cor de erro */}
                         <button onClick={onDelete} style={{...buttonStyle, background: '#d32f2f', color: 'white' }}>
                             <i className="fas fa-trash-alt"></i> Excluir Produto
                         </button>
