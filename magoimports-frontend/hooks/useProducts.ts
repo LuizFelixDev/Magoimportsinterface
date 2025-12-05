@@ -95,8 +95,6 @@ export const useProducts = () => {
             
             if (formData.imagens && isDataUrl(formData.imagens.trim())) {
                 imagensArray = [formData.imagens.trim()];
-            } else if (formData.imagens) {
-                imagensArray = formData.imagens.split(',').map(s => s.trim()).filter(s => s.length > 0);
             } else {
                 imagensArray = [];
             }
@@ -106,7 +104,7 @@ export const useProducts = () => {
                 preco: Number(formData.preco),
                 quantidade_em_estoque: Number(formData.quantidade_em_estoque),
                 ativo: Number(formData.ativo),
-                imagens: JSON.stringify(imagensArray), 
+                imagens: JSON.stringify(imagensArray),
             };
             
             const response = await fetch(url, {

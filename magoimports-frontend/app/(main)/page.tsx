@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import MagoLogo from '@/imagens/image.png'; 
 
-// URLs (Usaremos URLs de placeholder para as rotas que ainda não existem)
 const menuItems = [
     { name: "Produtos", icon: "fas fa-box-open", href: "/products", status: "Pronto" },
     { name: "Vendas", icon: "fas fa-shopping-cart", href: "/sales", status: "Pronto" },
@@ -34,7 +33,7 @@ const MainMenuPage: React.FC = () => {
                 alt="Logo Mago Imports" 
                 width={400} 
                 height={400}
-                style={{ marginBottom: '20px' }} // Margem restaurada para 20px
+                style={{ marginBottom: '20px' }} 
                 priority 
             />
             

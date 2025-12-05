@@ -24,7 +24,6 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
     });
     
     const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
-    const [originalImageUrls, setOriginalImageUrls] = useState<string>('');
     
     const isEditMode = !!productToEdit;
 
@@ -44,14 +43,11 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                      ...prev, 
                      imagens: images[0],
                  }));
-                 setOriginalImageUrls('');
             } else {
-                 const imageUrls = images.join(', ');
                  setFormData(prev => ({ 
                     ...prev, 
-                    imagens: imageUrls,
+                    imagens: '',
                  }));
-                 setOriginalImageUrls(imageUrls);
                  setSelectedFileName(null);
             }
 
@@ -74,16 +70,11 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                 ativo: 1,
             });
             setSelectedFileName(null);
-            setOriginalImageUrls('');
         }
     }, [productToEdit]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value, type } = e.target;
-        
-        if (name === 'imagens') {
-             setSelectedFileName(null);
-        }
         
         setFormData(prev => ({
             ...prev,
@@ -173,10 +164,10 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                     </div>
 
                     <div className="input-group">
-                        <label>Imagem (Upload Local ou URL)</label>
+                        <label>Imagem (Upload Local)</label>
                         
                         <div style={{ marginBottom: '10px', padding: '10px', border: '1px solid #e0e0e0', borderRadius: '8px', backgroundColor: 'var(--background-color)' }}>
-                            <label htmlFor="upload-file" style={{ display: 'block', marginBottom: '5px' }}>Upload Local:</label>
+                            <label htmlFor="upload-file" style={{ display: 'block', marginBottom: '5px' }}>Selecionar Arquivo:</label>
                             <input 
                                 type="file" 
                                 id="upload-file" 
@@ -189,23 +180,6 @@ const ProductModal: React.FC<ProductModalProps> = ({ isOpen, onClose, onSave, pr
                                 <p style={{ marginTop: '5px', fontSize: '0.8em', color: '#00ff08', fontWeight: 'bold' }}>Selecionado: {selectedFileName}</p>
                             )}
                         </div>
-
-                        <label htmlFor="imagens-url" style={{ display: 'block', marginBottom: '5px' }}>Ou URL(s) (separadas por vírgula):</label>
-                         <input 
-                            type="text" 
-                            id="imagens-url" 
-                            name="imagens" 
-                            value={selectedFileName ? '' : formData.imagens} 
-                            onChange={handleChange} 
-                            placeholder="url1.jpg, url2.png"
-                            disabled={!!selectedFileName}
-                        />
-                         {(isEditMode && !selectedFileName && originalImageUrls) && (
-                            <p style={{ marginTop: '5px', fontSize: '0.8em', color: '#999' }}>URLs originais: {originalImageUrls}</p>
-                         )}
-                         {(isEditMode && !selectedFileName && !originalImageUrls) && (
-                            <p style={{ marginTop: '5px', fontSize: '0.8em', color: '#999' }}>Nenhuma URL definida.</p>
-                         )}
                     </div>
                     
                     <div className="input-group radio-group">
