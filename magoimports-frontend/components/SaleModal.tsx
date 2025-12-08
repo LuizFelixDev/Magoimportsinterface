@@ -9,7 +9,6 @@ interface SaleModalProps {
     showAlert: (message: string, type: 'success' | 'error') => void;
 }
 
-// URLs e Constantes
 const PRODUCTS_API_URL = 'http://localhost:2020/products';
 const statusOptions: SaleStatus[] = ['Pendente', 'Concluída', 'Cancelada'];
 const paymentOptions: PaymentMethod[] = ['Dinheiro', 'Cartão de Crédito', 'Pix', 'Boleto'];
@@ -17,10 +16,8 @@ const paymentOptions: PaymentMethod[] = ['Dinheiro', 'Cartão de Crédito', 'Pix
 const SaleModal: React.FC<SaleModalProps> = ({ isOpen, onClose, onSave, saleToEdit, showAlert }) => {
     const today = new Date().toISOString().substring(0, 10);
     
-    // --- ESTADO LOCAL (Tipagem correta aplicada aqui) ---
     const [clientName, setClientName] = useState('');
     const [saleDate, setSaleDate] = useState(today);
-    // CORREÇÃO: Inicializando com a tipagem PaymentMethod e SaleStatus
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(paymentOptions[0]); 
     const [saleStatus, setSaleStatus] = useState<SaleStatus>(statusOptions[0]);
     const [selectedItems, setSelectedItems] = useState<SaleItem[]>([]);
@@ -29,9 +26,6 @@ const SaleModal: React.FC<SaleModalProps> = ({ isOpen, onClose, onSave, saleToEd
     const [selectedProductId, setSelectedProductId] = useState<number | ''>('');
     const [itemQuantity, setItemQuantity] = useState(1);
 
-    // --- EFEITOS DE DADOS ---
-
-    // 1. Efeito para buscar produtos disponíveis (para o dropdown)
     useEffect(() => {
         if (!isOpen) return;
 
@@ -57,13 +51,12 @@ const SaleModal: React.FC<SaleModalProps> = ({ isOpen, onClose, onSave, saleToEd
         fetchProducts();
     }, [isOpen, showAlert]);
 
-    // 2. Efeito para popular o modal em modo de EDIÇÃO
     useEffect(() => {
         if (saleToEdit) {
             setSaleDate(saleToEdit.data.substring(0, 10));
             setClientName(saleToEdit.cliente || '');
-            setPaymentMethod(saleToEdit.forma_pagamento as PaymentMethod); // Asserção de tipo
-            setSaleStatus(saleToEdit.status_venda as SaleStatus); // Asserção de tipo
+            setPaymentMethod(saleToEdit.forma_pagamento as PaymentMethod);
+            setSaleStatus(saleToEdit.status_venda as SaleStatus);
             setSelectedItems(saleToEdit.itens);
         } else {
             setSaleDate(today);
@@ -76,14 +69,10 @@ const SaleModal: React.FC<SaleModalProps> = ({ isOpen, onClose, onSave, saleToEd
         setItemQuantity(1);
     }, [saleToEdit, today]);
 
-    // --- CÁLCULO E LÓGICA DE ITENS ---
-
-    // Cálculo automático do valor total
     const calculatedTotal = useMemo(() => {
         return selectedItems.reduce((acc, item) => acc + item.totalItem, 0);
     }, [selectedItems]);
 
-    // Adicionar item à venda
     const handleAddItem = useCallback(() => {
         const product = availableProducts.find(p => p.id === selectedProductId);
         
@@ -93,11 +82,11 @@ const SaleModal: React.FC<SaleModalProps> = ({ isOpen, onClose, onSave, saleToEd
         }
 
         const newItem: SaleItem = {
-            produtoId: product.id,
+            produtoId: Number(product.id), 
             nomeProduto: product.nome,
-            quantidade: itemQuantity,
-            precoUnitario: product.preco,
-            totalItem: itemQuantity * product.preco,
+            quantidade: Number(itemQuantity), 
+            precoUnitario: Number(product.preco),
+            totalItem: Number(itemQuantity * product.preco),
         };
 
         setSelectedItems(prev => {
@@ -106,7 +95,7 @@ const SaleModal: React.FC<SaleModalProps> = ({ isOpen, onClose, onSave, saleToEd
                 const updatedItems = [...prev];
                 const existingItem = updatedItems[existingIndex];
                 
-                existingItem.quantidade += itemQuantity;
+                existingItem.quantidade += newItem.quantidade;
                 existingItem.totalItem = existingItem.quantidade * existingItem.precoUnitario;
                 return updatedItems;
             } else {
@@ -119,12 +108,9 @@ const SaleModal: React.FC<SaleModalProps> = ({ isOpen, onClose, onSave, saleToEd
 
     }, [selectedProductId, itemQuantity, availableProducts, showAlert]);
     
-    // Remover item da venda
     const handleRemoveItem = useCallback((produtoId: number) => {
         setSelectedItems(prev => prev.filter(item => item.produtoId !== produtoId));
     }, []);
-
-    // --- SUBMISSÃO ---
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -134,13 +120,21 @@ const SaleModal: React.FC<SaleModalProps> = ({ isOpen, onClose, onSave, saleToEd
             return;
         }
 
+        const serializedItems: SaleItem[] = selectedItems.map(item => ({
+            produtoId: Number(item.produtoId),
+            nomeProduto: item.nomeProduto,
+            quantidade: Number(item.quantidade),
+            precoUnitario: Number(item.precoUnitario),
+            totalItem: Number(item.totalItem),
+        }));
+
         const formData: SaleFormData = {
             data: saleDate,
             cliente: clientName || null,
             forma_pagamento: paymentMethod,
             status_venda: saleStatus,
             valor_total: calculatedTotal, 
-            itens: JSON.stringify(selectedItems), 
+            itens: JSON.stringify(serializedItems), 
         };
 
         const result = await onSave(formData, saleToEdit ? saleToEdit.id : null);
@@ -153,13 +147,11 @@ const SaleModal: React.FC<SaleModalProps> = ({ isOpen, onClose, onSave, saleToEd
         }
     };
     
-    // Reseta o estado local ao fechar o modal
     const handleClose = () => {
         setAvailableProducts([]);
         onClose();
     };
     
-    // Handler para inputs de texto (Cliente, Data) e select sem tipo de união
     const handleBasicChange = (setter: React.Dispatch<React.SetStateAction<string>>) => 
         (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
             setter(e.target.value);
@@ -174,7 +166,6 @@ const SaleModal: React.FC<SaleModalProps> = ({ isOpen, onClose, onSave, saleToEd
                 
                 <form className="form-container" onSubmit={handleSave}>
                     
-                    {/* Campos de Informação Básica da Venda */}
                     <div className="input-group">
                         <label htmlFor="data">Data da Venda</label>
                         <input type="date" id="data" name="data" value={saleDate} onChange={handleBasicChange(setSaleDate)} required />
@@ -191,7 +182,6 @@ const SaleModal: React.FC<SaleModalProps> = ({ isOpen, onClose, onSave, saleToEd
                             id="forma_pagamento" 
                             name="forma_pagamento" 
                             value={paymentMethod} 
-                            // CORREÇÃO DE TIPO: Asserção de tipo
                             onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
                         >
                             {paymentOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
@@ -204,14 +194,12 @@ const SaleModal: React.FC<SaleModalProps> = ({ isOpen, onClose, onSave, saleToEd
                             id="status_venda" 
                             name="status_venda" 
                             value={saleStatus} 
-                            // CORREÇÃO DE TIPO: Asserção de tipo
                             onChange={(e) => setSaleStatus(e.target.value as SaleStatus)}
                         >
                              {statusOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         </select>
                     </div>
 
-                    {/* --- GERENCIADOR DE ITENS --- */}
                     <h3>Adicionar Produto</h3>
                     <div className="item-manager">
                         <select 
@@ -240,7 +228,6 @@ const SaleModal: React.FC<SaleModalProps> = ({ isOpen, onClose, onSave, saleToEd
                         </button>
                     </div>
 
-                    {/* --- LISTA DE ITENS SELECIONADOS --- */}
                     <h3 className="mt-4">Itens Selecionados ({selectedItems.length})</h3>
                     <div className="selected-items-list">
                         {selectedItems.length === 0 ? (
@@ -258,7 +245,6 @@ const SaleModal: React.FC<SaleModalProps> = ({ isOpen, onClose, onSave, saleToEd
                         )}
                     </div>
                     
-                    {/* --- VALOR TOTAL (APENAS LEITURA) --- */}
                     <div className="total-display">
                         <strong>Valor Total:</strong> 
                         <span className="total-price">
