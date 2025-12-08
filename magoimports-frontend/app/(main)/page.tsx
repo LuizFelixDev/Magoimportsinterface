@@ -2,7 +2,6 @@
 import Link from 'next/link';
 import React from 'react';
 import { useRouter } from 'next/navigation';
-// Importar a imagem e o componente Image
 import Image from 'next/image';
 import MagoLogo from '@/imagens/image.png'; 
 
@@ -10,7 +9,7 @@ const menuItems = [
     { name: "Produtos", icon: "fas fa-box-open", href: "/products", status: "Pronto" },
     { name: "Vendas", icon: "fas fa-shopping-cart", href: "/sales", status: "Pronto" },
     { name: "Receitas & Despesas", icon: "fas fa-money-check-alt", href: "/finance", status: "Em Breve" },
-    { name: "Relatórios", icon: "fas fa-chart-line", href: "/reports", status: "Em Breve" },
+    { name: "Relatórios", icon: "fas fa-chart-line", href: "/reports", status: "Pronto" },
     { name: "Usuários", icon: "fas fa-users-cog", href: "/users", status: "Em Breve" },
 ];
 
@@ -27,7 +26,6 @@ const MainMenuPage: React.FC = () => {
 
     return (
         <div className="main-menu-container">
-            {/* Margem inferior ajustada para 20px (aproximadamente 1 ou 2 linhas) */}
             <Image 
                 src={MagoLogo} 
                 alt="Logo Mago Imports" 
