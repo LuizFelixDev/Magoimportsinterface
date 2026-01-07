@@ -12,6 +12,7 @@ export interface Product {
     cor: string | null;
     tamanho: string | null;
     quantidade_em_estoque: number;
+    estoque_minimo: number;
     preco: number;
     preco_promocional: number | null;
     peso: number | null;
@@ -24,6 +25,7 @@ export interface ProductFormData {
     nome: string;
     preco: number;
     quantidade_em_estoque: number;
+    estoque_minimo: number;
     descricao?: string;
     imagens?: string; 
     ativo: 0 | 1;
@@ -49,7 +51,6 @@ export const useProducts = () => {
 
     const processProductData = (data: any): Product => {
         let processedImages: string[] = [];
-
         if (data.imagens && typeof data.imagens === 'string') {
             try {
                 let images = JSON.parse(data.imagens);
@@ -62,7 +63,6 @@ export const useProducts = () => {
         } else if (Array.isArray(data.imagens)) {
             processedImages = data.imagens.map((img: string) => cleanUpImageUrl(img.trim()));
         }
-        
         data.imagens = processedImages.filter(img => img !== ''); 
         return data as Product;
     };
@@ -72,9 +72,7 @@ export const useProducts = () => {
         setError(null);
         try {
             const response = await fetch(API_URL);
-            if (!response.ok) {
-                throw new Error('Falha ao buscar produtos na API.');
-            }
+            if (!response.ok) throw new Error('Falha ao buscar produtos na API.');
             const data = await response.json();
             const processedData = data.map(processProductData);
             setProducts(processedData);
@@ -90,19 +88,13 @@ export const useProducts = () => {
         try {
             const method = id ? 'PUT' : 'POST';
             const url = id ? `${API_URL}/${id}` : API_URL;
-
-            let imagensArray: string[];
-            
-            if (formData.imagens && isDataUrl(formData.imagens.trim())) {
-                imagensArray = [formData.imagens.trim()];
-            } else {
-                imagensArray = [];
-            }
+            let imagensArray: string[] = formData.imagens && isDataUrl(formData.imagens.trim()) ? [formData.imagens.trim()] : [];
 
             const dataToApi = {
                 ...formData,
                 preco: Number(formData.preco),
                 quantidade_em_estoque: Number(formData.quantidade_em_estoque),
+                estoque_minimo: Number(formData.estoque_minimo),
                 ativo: Number(formData.ativo),
                 imagens: JSON.stringify(imagensArray),
             };
@@ -120,9 +112,7 @@ export const useProducts = () => {
 
             await fetchProducts(); 
             return { success: true, message: `Produto ${id ? 'atualizado' : 'cadastrado'} com sucesso!` };
-
         } catch (err: any) {
-            setError(err.message || 'Erro ao salvar o produto.');
             return { success: false, message: err.message || 'Erro ao salvar o produto.' };
         }
     };
@@ -130,35 +120,19 @@ export const useProducts = () => {
     const deleteProduct = async (id: number) => {
         setError(null);
         try {
-            const response = await fetch(`${API_URL}/${id}`, {
-                method: 'DELETE',
-            });
-
+            const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
             if (response.status !== 204) { 
                 const errorData = await response.json();
                 throw new Error(errorData.error || `Erro HTTP: ${response.status}`);
             }
-
             setProducts(prev => prev.filter(p => p.id !== id));
             return { success: true, message: 'Produto excluído com sucesso!' };
-
         } catch (err: any) {
-            setError(err.message || 'Erro ao excluir o produto.');
             return { success: false, message: err.message || 'Erro ao excluir o produto.' };
         }
     };
 
-    useEffect(() => {
-        fetchProducts();
-    }, [fetchProducts]);
+    useEffect(() => { fetchProducts(); }, [fetchProducts]);
 
-    return {
-        products,
-        isLoading,
-        error,
-        fetchProducts,
-        saveProduct,
-        deleteProduct,
-        processProductData,
-    };
+    return { products, isLoading, error, fetchProducts, saveProduct, deleteProduct, processProductData };
 };
