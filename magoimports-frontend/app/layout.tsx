@@ -1,35 +1,17 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+'use client';
 import { GoogleOAuthProvider } from '@react-oauth/google';
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const metadata: Metadata = {
-  title: "Gestão de Produtos - Mago Imports",
-  description: "Sistema de Gerenciamento de Estoque e Vendas",
-};
+import "./globals.css";
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="pt-BR">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        suppressHydrationWarning={true}
-      >
-        <GoogleOAuthProvider clientId="SEU_GOOGLE_CLIENT_ID.apps.googleusercontent.com">
+    <html lang="pt-br">
+      <body>
+        {/* Seu Client ID configurado corretamente aqui */}
+        <GoogleOAuthProvider clientId="389814300715-btnrn4dan7prjko2eqkiuv5b472pd588.apps.googleusercontent.com">
           {children}
         </GoogleOAuthProvider>
       </body>

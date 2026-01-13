@@ -612,3 +612,9 @@ body {
   .animate-fade-in {
     animation: fade-in 0.8s ease-out forwards;
   }
+  /* No seu globals.css */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #0B0E11; /* Cor de fundo padrão condizente com o login */
+}
