@@ -1,302 +1,227 @@
 'use client'; 
-import React, { useState, useCallback } from 'react';
-import { 
-    useReports, 
-    LowStockReport, 
-    SaleStatusReport, 
-    SalesPeriodReport,
-    SaleInPeriod
-} from '@/hooks/useReports'; 
+import React, { useState, useEffect, useCallback } from 'react';
+import { useReports } from '@/hooks/useReports'; 
 
-const Alert = ({ message, type }: { message: string, type: 'success' | 'error' }) => {
-    const [isVisible, setIsVisible] = useState(true);
-
-    if (!isVisible) return null;
-
-    setTimeout(() => setIsVisible(false), 3000);
-
-    return (
-        <div className={`alert ${type} show`}>
-            {message}
+const StatCard = ({ title, value, sub, icon, color }: any) => (
+    <div className="stat-card">
+        <div className="stat-content">
+            <p className="stat-label">{title}</p>
+            <h2 className="stat-main-value">{value}</h2>
+            <span className="stat-sub">{sub}</span>
         </div>
-    );
-};
-
-const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
-};
-
-const formatDate = (dateString: string) => {
-    try {
-        const date = new Date(dateString);
-        return new Date(date.getTime() + date.getTimezoneOffset() * 60000).toLocaleDateString('pt-BR');
-    } catch {
-        return dateString;
-    }
-};
-
-const LowStockReportDisplay = ({ report }: { report: LowStockReport }) => (
-    <div className="report-section">
-        <h2>Produtos com Estoque Baixo</h2>
-        <p className="report-summary">Limite de Estoque: <strong>{report.threshold} unidades</strong></p>
-        <p className="report-summary">Total de Produtos em Risco: <strong>{report.count}</strong></p>
-        
-        {report.count === 0 ? (
-            <div className="empty-message success-message">Nenhum produto com estoque abaixo do limite. Ótimo!</div>
-        ) : (
-            <table className="report-table">
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Estoque</th>
-                        <th>Preço Unitário</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {report.products.map((product, index) => (
-                        <tr key={index}>
-                            <td>{product.nome}</td>
-                            <td>{product.quantidade_em_estoque}</td>
-                            <td>{formatCurrency(product.preco)}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        )}
+        <div className="stat-icon-wrapper" style={{ background: `${color}20`, color: color }}>
+            <i className={icon}></i>
+        </div>
     </div>
 );
 
-const SalesByStatusReportDisplay = ({ report }: { report: SaleStatusReport[] }) => (
-    <div className="report-section">
-        <h2>Resumo de Vendas por Status</h2>
-        
-        {report.length === 0 ? (
-            <div className="empty-message">Nenhum dado de venda encontrado.</div>
-        ) : (
-            <table className="report-table">
-                <thead>
-                    <tr>
-                        <th>Status</th>
-                        <th>Quantidade</th>
-                        <th>Valor Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {report.map((status, index) => (
-                        <tr key={index}>
-                            <td>{status.status_venda}</td>
-                            <td>{status.count}</td>
-                            <td>{formatCurrency(status.total_valor)}</td>
-                    </tr>
-                    ))}
-                    <tr className="summary-row">
-                        <td><strong>TOTAL</strong></td>
-                        <td><strong>{report.reduce((sum, s) => sum + s.count, 0)}</strong></td>
-                        <td><strong>{formatCurrency(report.reduce((sum, s) => sum + s.total_valor, 0))}</strong></td>
-                    </tr>
-                </tbody>
-            </table>
-        )}
-    </div>
-);
-
-const SalesPeriodReportDisplay = ({ report }: { report: SalesPeriodReport }) => (
-    <div className="report-section">
-        <h2>Vendas por Período</h2>
-        <p className="report-summary"><strong>Período:</strong> {formatDate(report.periodo.startDate)} a {formatDate(report.periodo.endDate)}</p>
-        <p className="report-summary">Total de Vendas: <strong>{report.total_vendas}</strong> | Valor Total Arrecadado: <strong>{formatCurrency(report.valor_total_arrecadado)}</strong></p>
-        
-        {report.total_vendas === 0 ? (
-            <div className="empty-message">Nenhuma venda registrada neste período.</div>
-        ) : (
-            <table className="report-table full-width-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Data</th>
-                        <th>Cliente</th>
-                        <th>Valor Total</th>
-                        <th>Pagamento</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {report.vendas.map((sale: SaleInPeriod) => (
-                        <tr key={sale.id}>
-                            <td>#{sale.id}</td>
-                            <td>{formatDate(sale.data)}</td>
-                            <td>{sale.cliente}</td>
-                            <td>{formatCurrency(sale.valor_total)}</td>
-                            <td>{sale.forma_pagamento}</td>
-                            <td>{sale.status_venda}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        )}
-    </div>
-);
-
-
-export default function ReportsPage() {
+export default function EnhancedReportsPage() {
     const { 
-        isLoading, 
-        error, 
-        fetchLowStockReport, 
         fetchSalesByStatusReport, 
-        fetchSalesPeriodReport 
+        fetchSalesRanking,
+        fetchFullInventory
     } = useReports();
     
-    const [currentReport, setCurrentReport] = useState<'low-stock' | 'by-status' | 'period' | null>(null);
-    const [reportData, setReportData] = useState<any>(null);
-    
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
-    
-    const [alert, setAlert] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
+    const [view, setView] = useState<'overview' | 'inventory'>('overview');
+    const [data, setData] = useState<any>({
+        status: [],
+        ranking: [],
+        inventory: null
+    });
 
-    const showAlert = useCallback((message: string, type: 'success' | 'error') => {
-        setAlert({ message, type });
-        setTimeout(() => setAlert(null), 3000); 
-    }, []);
+    const loadData = useCallback(async () => {
+        const [st, rk, inv] = await Promise.all([
+            fetchSalesByStatusReport(),
+            fetchSalesRanking(),
+            fetchFullInventory()
+        ]);
+        setData({ status: st, ranking: rk, inventory: inv });
+    }, [fetchSalesByStatusReport, fetchSalesRanking, fetchFullInventory]);
 
-    const handleGenerateLowStock = useCallback(async () => {
-        setCurrentReport('low-stock');
-        setReportData(null);
-        const data = await fetchLowStockReport();
-        if (data) {
-            setReportData(data);
-            showAlert('Relatório de Estoque Baixo gerado com sucesso!', 'success');
-        } else if (error) {
-             showAlert(error, 'error');
-        }
-    }, [fetchLowStockReport, showAlert, error]);
-    
-    const handleGenerateSalesByStatus = useCallback(async () => {
-        setCurrentReport('by-status');
-        setReportData(null);
-        const data = await fetchSalesByStatusReport();
-        if (data) {
-            setReportData(data);
-            showAlert('Relatório de Vendas por Status gerado com sucesso!', 'success');
-        } else if (error) {
-             showAlert(error, 'error');
-        }
-    }, [fetchSalesByStatusReport, showAlert, error]);
-    
-    const handleGenerateSalesPeriod = useCallback(async () => {
-        if (!startDate || !endDate) {
-            showAlert('Por favor, preencha as datas de início e fim.', 'error');
-            return;
-        }
+    useEffect(() => {
+        loadData();
+    }, [loadData]);
 
-        setCurrentReport('period');
-        setReportData(null);
-        const data = await fetchSalesPeriodReport(startDate, endDate);
-        if (data) {
-            setReportData(data);
-            showAlert('Relatório de Vendas por Período gerado com sucesso!', 'success');
-        } else if (error) {
-             showAlert(error, 'error');
-        }
-    }, [startDate, endDate, fetchSalesPeriodReport, showAlert, error]);
-    
-    
-    const renderReport = () => {
-        if (isLoading) {
-            return <div className="loading-message">Gerando relatório...</div>;
-        }
-        
-        if (reportData) {
-            switch (currentReport) {
-                case 'low-stock':
-                    return <LowStockReportDisplay report={reportData as LowStockReport} />;
-                case 'by-status':
-                    return <SalesByStatusReportDisplay report={reportData as SaleStatusReport[]} />;
-                case 'period':
-                    return <SalesPeriodReportDisplay report={reportData as SalesPeriodReport} />;
-                default:
-                    return null;
-            }
-        }
-        
-        return <div className="empty-message">Selecione e gere um relatório acima para visualizar os dados.</div>;
-    };
-
+    const formatBRL = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
 
     return (
-        <>
-            <header className="navbar">
-                <button className="nav-button back-button" onClick={() => window.history.back()}>
-                    <i className="fas fa-chevron-left"></i> Voltar
+        <div className="reports-app">
+            <aside className="reports-sidebar">
+                <div className="sidebar-logo">
+                    <i className="fas fa-magic"></i>
+                    <span>MagoAnalytics</span>
+                </div>
+                <nav className="sidebar-nav">
+                    <button className={view === 'overview' ? 'active' : ''} onClick={() => setView('overview')}>
+                        <i className="fas fa-chart-line"></i> Dashboard
+                    </button>
+                    <button className={view === 'inventory' ? 'active' : ''} onClick={() => setView('inventory')}>
+                        <i className="fas fa-boxes"></i> Estoque Completo
+                    </button>
+                </nav>
+                <button className="back-home" onClick={() => window.history.back()}>
+                    <i className="fas fa-arrow-left"></i> Voltar ao Menu
                 </button>
-                <h1 className="nav-title">Módulo de Relatórios - MagoImports</h1>
-                <div className="nav-button placeholder"></div>
-            </header>
+            </aside>
 
-            {alert && <Alert message={alert.message} type={alert.type} />}
-
-            <main className="product-grid-container">
-                <div className="reports-control-panel">
-                    <h2>Controles de Relatórios</h2>
-
-                    <div className="report-control-group">
-                        <p><strong>Estoque Baixo:</strong> Produtos ativos com poucas unidades (limite: 5). </p>
-                        <button 
-                            onClick={handleGenerateLowStock} 
-                            disabled={isLoading}
-                            className="nav-button generate-button"
-                        >
-                            <i className="fas fa-cubes"></i> Gerar Estoque Baixo
+            <main className="reports-main">
+                <header className="main-header">
+                    <h1>{view === 'overview' ? 'Visão Geral de Vendas' : 'Detalhamento de Estoque'}</h1>
+                    <div className="header-actions">
+                        <button className="refresh-btn" onClick={loadData}>
+                            <i className="fas fa-sync-alt"></i>
                         </button>
                     </div>
+                </header>
 
-                    <div className="report-control-group">
-                        <p><strong>Vendas por Status:</strong> Contagem e total de valor por status.</p>
-                        <button 
-                            onClick={handleGenerateSalesByStatus} 
-                            disabled={isLoading}
-                            className="nav-button generate-button"
-                        >
-                            <i className="fas fa-chart-pie"></i> Gerar Vendas por Status
-                        </button>
-                    </div>
+                <div className="content-scroll">
+                    {view === 'overview' ? (
+                        <div className="dashboard-grid">
+                            <div className="top-stats">
+                                <StatCard 
+                                    title="Faturamento Total" 
+                                    value={formatBRL(data.status?.reduce((a:any, b:any) => a + b.total_valor, 0) || 0)} 
+                                    sub="Receita bruta" 
+                                    icon="fas fa-coins" 
+                                    color="#FFD700" 
+                                />
+                                <StatCard 
+                                    title="Total em Estoque" 
+                                    value={data.inventory?.summary.totalItems || 0} 
+                                    sub="Unidades físicas" 
+                                    icon="fas fa-warehouse" 
+                                    color="#FFFFFF" 
+                                />
+                                <StatCard 
+                                    title="Alertas Críticos" 
+                                    value={data.inventory?.summary.critical || 0} 
+                                    sub="Abaixo do mínimo" 
+                                    icon="fas fa-exclamation-triangle" 
+                                    color="#FFD700" 
+                                />
+                            </div>
 
-                    <div className="report-control-group period-control">
-                        <p><strong>Vendas por Período:</strong> Detalhes e resumo financeiro.</p>
-                        <div className="date-inputs">
-                            <input 
-                                type="date" 
-                                value={startDate} 
-                                onChange={(e) => setStartDate(e.target.value)}
-                                placeholder="Data Início"
-                                disabled={isLoading}
-                                className="date-input"
-                            />
-                            <input 
-                                type="date" 
-                                value={endDate} 
-                                onChange={(e) => setEndDate(e.target.value)}
-                                placeholder="Data Fim"
-                                disabled={isLoading}
-                                className="date-input"
-                            />
+                            <div className="visual-reports">
+                                <div className="report-card">
+                                    <h3>Performance de Vendas</h3>
+                                    <div className="status-bars">
+                                        {data.status?.map((s: any) => (
+                                            <div key={s.status_venda} className="bar-row">
+                                                <div className="bar-info">
+                                                    <span>{s.status_venda}</span>
+                                                    <span>{s.count} un.</span>
+                                                </div>
+                                                <div className="bar-track">
+                                                    <div className="bar-fill" style={{ width: `${Math.min((s.count / 20) * 100, 100)}%`, background: '#FFD700' }}></div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="report-card">
+                                    <h3>Produtos Sem Giro (+30 dias)</h3>
+                                    <div className="stagnant-list">
+                                        {data.inventory?.stagnant.slice(0, 5).map((p: any, i: number) => (
+                                            <div key={i} className="stagnant-item">
+                                                <span>{p.nome}</span>
+                                                <span className="stagnant-date">{new Date(p.data_criacao).toLocaleDateString()}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <button 
-                            onClick={handleGenerateSalesPeriod} 
-                            disabled={isLoading || !startDate || !endDate}
-                            className="nav-button generate-button"
-                        >
-                            <i className="fas fa-calendar-alt"></i> Gerar Vendas por Período
-                        </button>
-                    </div>
-                </div>
+                    ) : (
+                        <div className="inventory-view">
+                            <div className="inventory-header-stats">
+                                <div className="mini-stat">
+                                    <span className="label">Críticos</span>
+                                    <span className="value yellow">{data.inventory?.summary.critical}</span>
+                                </div>
+                                <div className="mini-stat">
+                                    <span className="label">Atenção</span>
+                                    <span className="value white">{data.inventory?.summary.warning}</span>
+                                </div>
+                            </div>
 
-                <div className="report-display-area">
-                    {renderReport()}
+                            <table className="full-inventory-table">
+                                <thead>
+                                    <tr>
+                                        <th>Produto</th>
+                                        <th>Estoque Atual</th>
+                                        <th>Estoque Mínimo</th>
+                                        <th>Status</th>
+                                        <th>Preço</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {data.inventory?.all.map((p: any, i: number) => {
+                                        const isCritical = p.quantidade_em_estoque <= p.estoque_minimo;
+                                        const isWarning = p.quantidade_em_estoque <= p.estoque_minimo + 3 && !isCritical;
+                                        
+                                        return (
+                                            <tr key={i} className={isCritical ? 'row-critical' : ''}>
+                                                <td>{p.nome}</td>
+                                                <td>{p.quantidade_em_estoque} un</td>
+                                                <td>{p.estoque_minimo} un</td>
+                                                <td>
+                                                    {isCritical ? <span className="badge critical">CRÍTICO</span> : 
+                                                     isWarning ? <span className="badge warning">ATENÇÃO</span> : 
+                                                     <span className="badge ok">OK</span>}
+                                                </td>
+                                                <td>{formatBRL(p.preco)}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
                 </div>
-                
             </main>
-        </>
+
+            <style jsx>{`
+                .reports-app { display: flex; height: 100vh; background: #000000; color: #FFFFFF; font-family: 'Inter', sans-serif; }
+                .reports-sidebar { width: 260px; background: #111111; padding: 2rem; display: flex; flex-direction: column; border-right: 1px solid #222222; }
+                .sidebar-logo { display: flex; align-items: center; gap: 12px; font-size: 1.25rem; font-weight: 800; margin-bottom: 3rem; color: #FFD700; }
+                .sidebar-nav { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+                .sidebar-nav button { background: transparent; border: none; color: #888888; padding: 12px 16px; text-align: left; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s; font-weight: 500; }
+                .sidebar-nav button.active { background: #FFD700; color: #000000; }
+                .reports-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+                .main-header { padding: 1.5rem 3rem; background: #111111; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222222; }
+                .content-scroll { padding: 3rem; overflow-y: auto; flex: 1; }
+                .top-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 32px; }
+                .stat-card { background: #111111; padding: 24px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #222222; }
+                .stat-label { color: #888888; font-size: 0.875rem; margin-bottom: 8px; }
+                .stat-main-value { font-size: 1.75rem; font-weight: 700; color: #FFFFFF; }
+                .stat-sub { color: #FFD700; font-size: 0.75rem; font-weight: 600; }
+                .stat-icon-wrapper { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
+                .visual-reports { display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px; }
+                .report-card { background: #111111; padding: 24px; border-radius: 16px; border: 1px solid #222222; }
+                .report-card h3 { color: #FFD700; margin-bottom: 20px; font-size: 1rem; }
+                .bar-row { margin-bottom: 15px; }
+                .bar-info { display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 5px; }
+                .bar-track { background: #222222; height: 6px; border-radius: 10px; overflow: hidden; }
+                .bar-fill { height: 100%; transition: width 0.8s ease; }
+                .stagnant-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222222; font-size: 0.85rem; }
+                .stagnant-date { color: #888888; }
+                .inventory-header-stats { display: flex; gap: 20px; margin-bottom: 20px; }
+                .mini-stat { background: #111111; padding: 15px 25px; border-radius: 12px; border: 1px solid #222222; display: flex; flex-direction: column; }
+                .mini-stat .label { font-size: 0.75rem; color: #888888; }
+                .mini-stat .value { font-size: 1.5rem; font-weight: 800; }
+                .mini-stat .yellow { color: #FFD700; }
+                .full-inventory-table { width: 100%; border-collapse: collapse; background: #111111; border-radius: 12px; overflow: hidden; }
+                .full-inventory-table th { text-align: left; padding: 15px; background: #222222; color: #FFD700; font-size: 0.85rem; }
+                .full-inventory-table td { padding: 15px; border-bottom: 1px solid #222222; font-size: 0.9rem; }
+                .badge { padding: 4px 10px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; }
+                .badge.critical { background: #FFD700; color: #000000; }
+                .badge.warning { border: 1px solid #FFD700; color: #FFD700; }
+                .badge.ok { color: #888888; border: 1px solid #333333; }
+                .row-critical { background: rgba(255, 215, 0, 0.05); }
+                .back-home { margin-top: auto; background: #222222; border: none; color: #FFFFFF; padding: 12px; border-radius: 8px; cursor: pointer; }
+                .refresh-btn { background: #222222; border: none; color: #FFD700; width: 40px; height: 40px; border-radius: 8px; cursor: pointer; }
+            `}</style>
+        </div>
     );
 }
