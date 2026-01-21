@@ -13,7 +13,6 @@ const SaleCard: React.FC<SaleCardProps> = ({ sale, onEdit, onDelete }) => {
     const formattedTotal = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(sale.valor_total);
     const formattedDate = new Date(sale.data).toLocaleDateString('pt-BR');
 
-    // Estilo condicional para o status
     const statusClass = sale.status_venda === 'Concluída' 
         ? 'text-green-600' 
         : sale.status_venda === 'Cancelada' 
@@ -21,7 +20,7 @@ const SaleCard: React.FC<SaleCardProps> = ({ sale, onEdit, onDelete }) => {
             : 'text-yellow-600';
 
     return (
-        <div className="product-card"> {/* Reutilizamos a classe de estilo do produto */}
+        <div className="product-card">
             <div className="product-info">
                 <h3 className="product-title">Venda #{sale.id}</h3>
                 <p>Cliente: <strong>{sale.cliente || 'N/A'}</strong></p>

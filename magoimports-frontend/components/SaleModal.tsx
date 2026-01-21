@@ -10,7 +10,7 @@ interface SaleModalProps {
 }
 
 const PRODUCTS_API_URL = 'http://localhost:2020/products';
-const statusOptions: SaleStatus[] = ['Pendente', 'Concluída', 'Cancelada'];
+const statusOptions: SaleStatus[] = ['Concluída', 'Pendente', 'Cancelada'];
 const paymentOptions: PaymentMethod[] = ['Dinheiro', 'Cartão de Crédito', 'Pix', 'Boleto'];
 
 const SaleModal: React.FC<SaleModalProps> = ({ isOpen, onClose, onSave, saleToEdit, showAlert }) => {
@@ -19,7 +19,7 @@ const SaleModal: React.FC<SaleModalProps> = ({ isOpen, onClose, onSave, saleToEd
     const [clientName, setClientName] = useState('');
     const [saleDate, setSaleDate] = useState(today);
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(paymentOptions[0]); 
-    const [saleStatus, setSaleStatus] = useState<SaleStatus>(statusOptions[0]);
+    const [saleStatus, setSaleStatus] = useState<SaleStatus>('Concluída');
     const [selectedItems, setSelectedItems] = useState<SaleItem[]>([]);
     
     const [availableProducts, setAvailableProducts] = useState<ProductPrice[]>([]);
@@ -62,7 +62,7 @@ const SaleModal: React.FC<SaleModalProps> = ({ isOpen, onClose, onSave, saleToEd
             setSaleDate(today);
             setClientName('');
             setPaymentMethod(paymentOptions[0]);
-            setSaleStatus(statusOptions[0]);
+            setSaleStatus('Concluída');
             setSelectedItems([]);
         }
         setSelectedProductId('');
@@ -161,102 +161,84 @@ const SaleModal: React.FC<SaleModalProps> = ({ isOpen, onClose, onSave, saleToEd
 
     return (
         <div className="modal-backdrop">
-            <div className="modal-card">
-                <h2 id="modal-title">{saleToEdit ? `Editar Venda #${saleToEdit.id}` : 'Cadastrar Nova Venda'}</h2>
+            <div className="modal-card max-w-md">
+                <h2 id="modal-title" className="text-lg font-bold mb-4">{saleToEdit ? `Editar Venda #${saleToEdit.id}` : 'Nova Venda'}</h2>
                 
-                <form className="form-container" onSubmit={handleSave}>
-                    
-                    <div className="input-group">
-                        <label htmlFor="data">Data da Venda</label>
-                        <input type="date" id="data" name="data" value={saleDate} onChange={handleBasicChange(setSaleDate)} required />
+                <form className="form-container space-y-3" onSubmit={handleSave}>
+                    <div className="flex gap-3">
+                        <div className="input-group flex-1">
+                            <label htmlFor="data">Data</label>
+                            <input type="date" id="data" value={saleDate} onChange={handleBasicChange(setSaleDate)} required />
+                        </div>
+                        <div className="input-group flex-1">
+                            <label htmlFor="status_venda">Status</label>
+                            <select id="status_venda" value={saleStatus} onChange={(e) => setSaleStatus(e.target.value as SaleStatus)}>
+                                 {statusOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                            </select>
+                        </div>
                     </div>
 
                     <div className="input-group">
-                        <label htmlFor="cliente">Nome do Cliente (Opcional)</label>
-                        <input type="text" id="cliente" name="cliente" value={clientName} onChange={(e) => setClientName(e.target.value)} />
+                        <label htmlFor="cliente">Cliente</label>
+                        <input type="text" id="cliente" value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder="Opcional" />
                     </div>
                     
                     <div className="input-group">
-                        <label htmlFor="forma_pagamento">Forma de Pagamento</label>
-                        <select 
-                            id="forma_pagamento" 
-                            name="forma_pagamento" 
-                            value={paymentMethod} 
-                            onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
-                        >
+                        <label htmlFor="forma_pagamento">Pagamento</label>
+                        <select id="forma_pagamento" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}>
                             {paymentOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         </select>
                     </div>
 
-                    <div className="input-group">
-                        <label htmlFor="status_venda">Status da Venda</label>
-                        <select 
-                            id="status_venda" 
-                            name="status_venda" 
-                            value={saleStatus} 
-                            onChange={(e) => setSaleStatus(e.target.value as SaleStatus)}
-                        >
-                             {statusOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                        </select>
+                    <div className="item-manager flex gap-2 items-center pt-2 border-t">
+                        <div className="flex-1">
+                            <label className="text-xs block mb-1">Produto</label>
+                            <select value={selectedProductId} onChange={(e) => setSelectedProductId(Number(e.target.value) || '')} className="item-select w-full h-10">
+                                <option value="">Selecionar...</option>
+                                {availableProducts.map(p => (
+                                    <option key={p.id} value={p.id}>{p.nome} (R$ {p.preco.toFixed(2)})</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="w-16">
+                            <label className="text-xs block mb-1">Qtd</label>
+                            <input type="number" value={itemQuantity} onChange={(e) => setItemQuantity(Math.max(1, parseInt(e.target.value) || 1))} min="1" className="item-quantity-input w-full h-10" />
+                        </div>
+                        <div className="self-end">
+                            <button type="button" onClick={handleAddItem} className="add-item-button bg-green-600 text-white h-10 px-4 rounded hover:bg-green-700 transition-colors flex items-center justify-center">
+                                <i className="fas fa-plus"></i>
+                            </button>
+                        </div>
                     </div>
 
-                    <h3>Adicionar Produto</h3>
-                    <div className="item-manager">
-                        <select 
-                            value={selectedProductId} 
-                            onChange={(e) => setSelectedProductId(Number(e.target.value) || '')} 
-                            required={selectedItems.length === 0}
-                            className="item-select"
-                        >
-                            <option value="">Selecione um Produto</option>
-                            {availableProducts.map(p => (
-                                <option key={p.id} value={p.id}>
-                                    {p.nome} (Estoque: {p.quantidade_em_estoque}, R$ {p.preco.toFixed(2)})
-                                </option>
-                            ))}
-                        </select>
-
-                        <input 
-                            type="number" 
-                            value={itemQuantity} 
-                            onChange={(e) => setItemQuantity(Math.max(1, parseInt(e.target.value) || 1))} 
-                            min="1" 
-                            className="item-quantity-input"
-                        />
-                        <button type="button" onClick={handleAddItem} className="add-item-button">
-                            Adicionar <i className="fas fa-cart-plus"></i>
-                        </button>
-                    </div>
-
-                    <h3 className="mt-4">Itens Selecionados ({selectedItems.length})</h3>
-                    <div className="selected-items-list">
+                    <div className="selected-items-list max-h-24 overflow-y-auto border rounded p-2 bg-gray-50">
                         {selectedItems.length === 0 ? (
-                            <p className="text-gray-500">Nenhum item adicionado.</p>
+                            <p className="text-gray-400 text-xs text-center">Nenhum item</p>
                         ) : (
                             selectedItems.map((item) => (
-                                <div key={item.produtoId} className="item-row">
+                                <div key={item.produtoId} className="flex justify-between text-xs py-1 border-b last:border-0">
                                     <span>{item.quantidade}x {item.nomeProduto}</span>
-                                    <span>R$ {item.totalItem.toFixed(2)}</span>
-                                    <button type="button" onClick={() => handleRemoveItem(item.produtoId)} className="remove-item-button">
-                                        <i className="fas fa-times"></i>
-                                    </button>
+                                    <div className="flex items-center gap-2">
+                                        <span>R$ {item.totalItem.toFixed(2)}</span>
+                                        <button type="button" onClick={() => handleRemoveItem(item.produtoId)} className="text-red-500">
+                                            <i className="fas fa-times"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             ))
                         )}
                     </div>
                     
-                    <div className="total-display">
-                        <strong>Valor Total:</strong> 
-                        <span className="total-price">
-                           R$ {calculatedTotal.toFixed(2)}
-                        </span>
+                    <div className="total-display flex justify-between items-center py-1">
+                        <strong className="text-sm">Total:</strong> 
+                        <span className="total-price text-green-700 font-bold">R$ {calculatedTotal.toFixed(2)}</span>
                     </div>
 
-                    <button type="submit" className="register-button">
-                        {saleToEdit ? 'Salvar Venda' : 'Cadastrar Venda'}
-                    </button>
+                    <div className="flex gap-2 pt-2">
+                        <button type="button" onClick={handleClose} className="cancel-button flex-1 py-2 bg-gray-100 rounded text-sm">Cancelar</button>
+                        <button type="submit" className="register-button flex-1 py-2 rounded text-sm">Confirmar</button>
+                    </div>
                 </form>
-                <button type="button" onClick={handleClose} className="cancel-button">Cancelar</button>
             </div>
         </div>
     );
