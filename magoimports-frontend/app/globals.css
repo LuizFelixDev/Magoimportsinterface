@@ -40,6 +40,7 @@ body {
     background-color: var(--background-color);
     color: var(--text-color);
     line-height: 1.6;
+    
 }
 
 .navbar {
@@ -182,7 +183,7 @@ body {
     right: 0;
     background-color: var(--card-background);
     border-radius: var(--border-radius-l);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 8px rgba(252, 252, 252, 0.15);
     overflow: hidden;
     z-index: 500;
     min-width: 120px;
@@ -616,5 +617,5 @@ body {
 body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #0B0E11; /* Cor de fundo padrão condizente com o login */
+    background-color: #eeeaea; /* Cor de fundo padrão condizente com o login */
 }
