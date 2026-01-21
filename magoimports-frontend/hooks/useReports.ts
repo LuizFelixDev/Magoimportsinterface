@@ -18,16 +18,17 @@ export const useReports = () => {
         }
     }, []);
 
-    const fetchLowStockReport = useCallback(() => fetchData<any>('/products/low-stock'), [fetchData]);
     const fetchSalesByStatusReport = useCallback(() => fetchData<any[]>('/sales/by-status'), [fetchData]);
-    const fetchSalesRanking = useCallback(() => fetchData<any[]>('/sales/ranking'), [fetchData]);
     const fetchFullInventory = useCallback(() => fetchData<any>('/inventory/full'), [fetchData]);
+    const fetchProcurementSuggested = useCallback(() => fetchData<any[]>('/procurement/suggested'), [fetchData]);
+    const fetchProductPerformance = useCallback((start: string, end: string) => 
+        fetchData<any>(`/products/performance?startDate=${start}&endDate=${end}`), [fetchData]);
 
     return {
         isLoading,
-        fetchLowStockReport,
         fetchSalesByStatusReport,
-        fetchSalesRanking,
-        fetchFullInventory
+        fetchFullInventory,
+        fetchProcurementSuggested,
+        fetchProductPerformance
     };
 };
