@@ -4,14 +4,10 @@ import { useSales, Sale } from '../../hooks/useSales';
 import SaleCard from '../../components/SaleCard'; 
 import SaleModal from '../../components/SaleModal';
 
-// Componente para a mensagem de alerta (Reutilizado do Products)
 const Alert = ({ message, type }: { message: string, type: 'success' | 'error' }) => {
     const [isVisible, setIsVisible] = useState(true);
-
     if (!isVisible) return null;
-
     setTimeout(() => setIsVisible(false), 3000);
-
     return (
         <div className={`alert ${type} show`}>
             {message}
@@ -21,13 +17,10 @@ const Alert = ({ message, type }: { message: string, type: 'success' | 'error' }
 
 export default function SalesManagerPage() {
     const { sales, isLoading, error, saveSale, deleteSale } = useSales();
-    
     const [isSaleModalOpen, setIsSaleModalOpen] = useState(false);
     const [saleToEdit, setSaleToEdit] = useState<Sale | null>(null);
-    
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [saleToDelete, setSaleToDelete] = useState<{ id: number, nome: string } | null>(null);
-    
     const [alert, setAlert] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
 
     const showAlert = useCallback((message: string, type: 'success' | 'error') => {
@@ -102,7 +95,7 @@ export default function SalesManagerPage() {
             {alert && <Alert message={alert.message} type={alert.type} />}
 
             <main className="product-grid-container">
-                <div className="product-grid">
+                <div className="flex flex-col gap-4">
                     {content}
                 </div>
             </main>
