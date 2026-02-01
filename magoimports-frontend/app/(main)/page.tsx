@@ -8,7 +8,7 @@ import AuthButton from '@/components/AuthButton';
 const menuItems = [
     { name: "Produtos", icon: "fas fa-box-open", href: "/products", status: "Pronto" },
     { name: "Vendas", icon: "fas fa-shopping-cart", href: "/sales", status: "Pronto" },
-    { name: "Receitas & Despesas", icon: "fas fa-money-check-alt", href: "/finance", status: "Em Breve" },
+    { name: "Receitas & Despesas", icon: "fas fa-money-check-alt", href: "/finance", status: "Pronto" }, 
     { name: "Relatórios", icon: "fas fa-chart-line", href: "/reports", status: "Pronto" },
 ];
 
