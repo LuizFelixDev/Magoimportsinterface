@@ -5,7 +5,7 @@ import { useSales } from '@/hooks/useSales';
 
 export default function FinancePage() {
     const router = useRouter();
-    const { sales, isLoading, deleteSale } = useSales();
+    const { sales, isLoading, deleteSale, fetchSales } = useSales();
     const [manualExpenses, setManualExpenses] = useState<{ id: number; valor: number }[]>([]);
 
     const pendingSales = useMemo(() => 
@@ -35,6 +35,19 @@ export default function FinancePage() {
         }
     };
 
+    const handleResetDashboard = async () => {
+        const confirmed = confirm("Tem certeza que deseja zerar os dashboards? Isso excluirá todas as despesas manuais e você precisará cancelar ou excluir as vendas concluídas para zerar as receitas.");
+        
+        if (confirmed) {
+            setManualExpenses([]);
+            const concluidas = sales.filter(s => s.status_venda === 'Concluída');
+            for (const sale of concluidas) {
+                await deleteSale(sale.id);
+            }
+            fetchSales();
+        }
+    };
+
     const handleEdit = (id: number) => {
         router.push(`/sales?edit=${id}`);
     };
@@ -44,9 +57,14 @@ export default function FinancePage() {
     return (
         <div className="product-grid-container">
             <nav className="navbar" style={{ marginBottom: '30px' }}>
-                <button className="nav-button back-button" onClick={() => router.push('/')}>
-                    <i className="fas fa-arrow-left"></i> Voltar
-                </button>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <button className="nav-button back-button" onClick={() => router.push('/')}>
+                        <i className="fas fa-arrow-left"></i> Voltar
+                    </button>
+                    <button className="nav-button" style={{ backgroundColor: '#e74c3c', color: 'white' }} onClick={handleResetDashboard}>
+                        <i className="fas fa-trash-alt"></i> Zerar Dados
+                    </button>
+                </div>
                 <h1 className="nav-title">Gestão Financeira</h1>
                 <button className="nav-button new-button" onClick={handleAddExpense}>
                     <i className="fas fa-plus"></i> Adicionar Despesa
