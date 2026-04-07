@@ -1,32 +1,41 @@
 'use client';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSales, Sale } from '@/hooks/useSales';
+import { useSales } from '@/hooks/useSales';
 
 export default function FinancePage() {
     const router = useRouter();
     const { sales, isLoading, deleteSale } = useSales();
+    const [manualExpenses, setManualExpenses] = useState<{ id: number; valor: number }[]>([]);
 
-    // Filtra apenas vendas pendentes para o segundo dashboard
     const pendingSales = useMemo(() => 
         sales.filter(sale => sale.status_venda === 'Pendente'), 
     [sales]);
 
-    // Cálculo simplificado para o dashboard superior
     const metrics = useMemo(() => {
         const receitas = sales
             .filter(s => s.status_venda === 'Concluída')
             .reduce((acc, s) => acc + Number(s.valor_total), 0);
         
-        // Exemplo de despesas (idealmente viria de um hook useExpenses)
-        const despesas = 1500.00; 
+        const despesas = manualExpenses.reduce((acc, exp) => acc + exp.valor, 0);
         const faturamento = receitas - despesas;
 
-        return { receitas, despesas, faturamento };
-    }, [sales]);
+        const totalVolume = receitas + despesas || 1;
+        const percReceita = (receitas / totalVolume) * 100;
+        const percDespesa = (despesas / totalVolume) * 100;
+        const percFaturamento = receitas > 0 ? Math.max(0, Math.min(100, (faturamento / receitas) * 100)) : 0;
+
+        return { receitas, despesas, faturamento, percReceita, percDespesa, percFaturamento };
+    }, [sales, manualExpenses]);
+
+    const handleAddExpense = () => {
+        const valor = prompt("Digite o valor da despesa:");
+        if (valor && !isNaN(Number(valor))) {
+            setManualExpenses(prev => [...prev, { id: Date.now(), valor: Number(valor) }]);
+        }
+    };
 
     const handleEdit = (id: number) => {
-        // Redireciona para a página de vendas com o ID para edição
         router.push(`/sales?edit=${id}`);
     };
 
@@ -34,37 +43,40 @@ export default function FinancePage() {
 
     return (
         <div className="product-grid-container">
-            {/* Navbar superior com botões */}
             <nav className="navbar" style={{ marginBottom: '30px' }}>
                 <button className="nav-button back-button" onClick={() => router.push('/')}>
                     <i className="fas fa-arrow-left"></i> Voltar
                 </button>
                 <h1 className="nav-title">Gestão Financeira</h1>
-                <button className="nav-button new-button">
+                <button className="nav-button new-button" onClick={handleAddExpense}>
                     <i className="fas fa-plus"></i> Adicionar Despesa
                 </button>
             </nav>
 
-            {/* Dashboard 1: Resumo em Barras */}
             <div className="menu-button-card" style={{ width: '100%', cursor: 'default', marginBottom: '30px', padding: '40px' }}>
                 <h2 className="button-title" style={{ marginBottom: '20px' }}>Resumo de Caixa</h2>
                 <div className="finance-bar-container">
                     <div className="finance-item">
                         <span>Receitas: R$ {metrics.receitas.toFixed(2)}</span>
-                        <div className="bar-bg"><div className="bar-fill green" style={{ width: '70%' }}></div></div>
+                        <div className="bar-bg">
+                            <div className="bar-fill green" style={{ width: `${metrics.percReceita}%` }}></div>
+                        </div>
                     </div>
                     <div className="finance-item">
                         <span>Despesas: R$ {metrics.despesas.toFixed(2)}</span>
-                        <div className="bar-bg"><div className="bar-fill red" style={{ width: '30%' }}></div></div>
+                        <div className="bar-bg">
+                            <div className="bar-fill red" style={{ width: `${metrics.percDespesa}%` }}></div>
+                        </div>
                     </div>
                     <div className="finance-item">
                         <span>Faturamento Líquido: R$ {metrics.faturamento.toFixed(2)}</span>
-                        <div className="bar-bg"><div className="bar-fill primary" style={{ width: '40%' }}></div></div>
+                        <div className="bar-bg">
+                            <div className="bar-fill primary" style={{ width: `${metrics.percFaturamento}%` }}></div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {/* Dashboard 2: Vendas Pendentes */}
             <div className="menu-button-card" style={{ width: '100%', cursor: 'default', alignItems: 'flex-start', textAlign: 'left' }}>
                 <h2 className="button-title" style={{ paddingLeft: '20px' }}>
                     <i className="fas fa-clock" style={{ marginRight: '10px' }}></i>
@@ -118,11 +130,11 @@ export default function FinancePage() {
                 }
                 .bar-fill {
                     height: 100%;
-                    transition: width 1s ease-in-out;
+                    transition: width 0.5s ease-in-out;
                 }
-                .green { background-color: #00ff08; }
-                .red { background-color: #fa5252; }
-                .primary { background-color: var(--primary-color); }
+                .green { background-color: #2ecc71; }
+                .red { background-color: #e74c3c; }
+                .primary { background-color: #3498db; }
 
                 .btn-approve { background: #e7f5ff; color: #228be6; }
                 .btn-approve:hover { background: #228be6; color: white; }
