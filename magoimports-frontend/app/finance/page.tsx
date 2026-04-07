@@ -36,15 +36,21 @@ export default function FinancePage() {
     };
 
     const handleResetDashboard = async () => {
-        const confirmed = confirm("Tem certeza que deseja zerar os dashboards? Isso excluirá todas as despesas manuais e você precisará cancelar ou excluir as vendas concluídas para zerar as receitas.");
+        const confirmed = confirm("Tem certeza que deseja zerar os dashboards? Isso excluirá as despesas manuais e todas as vendas concluídas.");
         
         if (confirmed) {
             setManualExpenses([]);
             const concluidas = sales.filter(s => s.status_venda === 'Concluída');
-            for (const sale of concluidas) {
-                await deleteSale(sale.id);
+            
+            try {
+                for (const sale of concluidas) {
+                    await deleteSale(sale.id);
+                }
+                await fetchSales();
+                alert("Dashboards zerados com sucesso.");
+            } catch (err) {
+                alert("Erro ao tentar zerar algumas vendas do banco de dados.");
             }
-            fetchSales();
         }
     };
 
@@ -58,10 +64,10 @@ export default function FinancePage() {
         <div className="product-grid-container">
             <nav className="navbar" style={{ marginBottom: '30px' }}>
                 <div style={{ display: 'flex', gap: '10px' }}>
-                    <button className="nav-button back-button" onClick={() => router.push('/')}>
+                    <button className="nav-button back-button" onClick={() => router.replace('/')}>
                         <i className="fas fa-arrow-left"></i> Voltar
                     </button>
-                    <button className="nav-button" style={{ backgroundColor: '#e74c3c', color: 'white' }} onClick={handleResetDashboard}>
+                    <button className="nav-button" style={{ backgroundColor: '#e74c3c', color: 'white', border: 'none' }} onClick={handleResetDashboard}>
                         <i className="fas fa-trash-alt"></i> Zerar Dados
                     </button>
                 </div>
@@ -154,15 +160,16 @@ export default function FinancePage() {
                 .red { background-color: #e74c3c; }
                 .primary { background-color: #3498db; }
 
-                .btn-approve { background: #e7f5ff; color: #228be6; }
+                .btn-approve { background: #e7f5ff; color: #228be6; border: none; cursor: pointer; }
                 .btn-approve:hover { background: #228be6; color: white; }
                 
+                .btn-reject { background: #fff5f5; color: #fa5252; border: none; cursor: pointer; }
+                .btn-reject:hover { background: #fa5252; color: white; }
+
                 .action-buttons button {
                     width: 35px;
                     height: 35px;
                     border-radius: 8px;
-                    border: none;
-                    cursor: pointer;
                     display: flex;
                     align-items: center;
                     justify-content: center;
