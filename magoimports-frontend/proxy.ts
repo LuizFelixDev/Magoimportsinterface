@@ -1,28 +1,36 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:2020';
 
-export function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+export async function proxy(endpoint: string | Request, options: RequestInit = {}) {
+    if (typeof window === 'undefined') {
+        return null;
+    }
 
-  if (
-    pathname === '/login' || 
-    pathname.startsWith('/_next') || 
-    pathname.includes('/imagens') ||
-    pathname === '/favicon.ico'
-  ) {
-    return NextResponse.next();
-  }
+    const token = localStorage.getItem('token');
+    
+    const headers = {
+        'Content-Type': 'application/json',
+        ...options.headers,
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    };
 
-  const userCookie = request.cookies.get('mago_user_session');
+    const targetUrl = typeof endpoint === 'string' 
+        ? (endpoint.startsWith('http') ? endpoint : `${API_URL}${endpoint}`)
+        : endpoint;
 
-  if (!userCookie) {
-    const loginUrl = new URL('/login', request.url);
-    return NextResponse.redirect(loginUrl);
-  }
+    try {
+        const response = await fetch(targetUrl, {
+            ...options,
+            headers,
+            cache: 'no-store'
+        });
 
-  return NextResponse.next();
+        if (response.status === 401) {
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+        }
+
+        return response;
+    } catch (error) {
+        throw error;
+    }
 }
-
-export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
-};

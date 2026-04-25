@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { proxy } from '../proxy.js';
 
 export interface Product { 
     id: number;
@@ -16,7 +17,7 @@ export interface Product {
     preco: number;
     preco_promocional: number | null;
     peso: number | null;
-    imagens: string[] | string | null; 
+    imagens: string[] | null; 
     data_de_cadastro: string;
     ativo: 0 | 1;
 }
@@ -27,22 +28,9 @@ export interface ProductFormData {
     quantidade_em_estoque: number;
     estoque_minimo: number;
     descricao?: string;
-    imagens?: string; 
+    imagens?: string[]; 
     ativo: 0 | 1;
 }
-
-const API_URL = 'http://localhost:2020/products';
-
-const isDataUrl = (str: string): boolean => {
-    return str.startsWith('data:image/');
-};
-
-const cleanUpImageUrl = (url: string): string => {
-    if (typeof url === 'string' && url.startsWith('http://seusite.com')) {
-        return 'https://via.placeholder.com/300x200?text=Mock+Data+Cleaned';
-    }
-    return url;
-};
 
 export const useProducts = () => {
     const [products, setProducts] = useState<Product[]>([]);
@@ -50,20 +38,13 @@ export const useProducts = () => {
     const [error, setError] = useState<string | null>(null);
 
     const processProductData = (data: any): Product => {
-        let processedImages: string[] = [];
         if (data.imagens && typeof data.imagens === 'string') {
             try {
-                let images = JSON.parse(data.imagens);
-                if (Array.isArray(images)) {
-                     processedImages = images.map((img: string) => cleanUpImageUrl(img.trim()));
-                }
+                data.imagens = JSON.parse(data.imagens);
             } catch (e) {
-                processedImages = [cleanUpImageUrl(data.imagens.trim())];
+                data.imagens = [data.imagens];
             }
-        } else if (Array.isArray(data.imagens)) {
-            processedImages = data.imagens.map((img: string) => cleanUpImageUrl(img.trim()));
         }
-        data.imagens = processedImages.filter(img => img !== ''); 
         return data as Product;
     };
     
@@ -71,8 +52,8 @@ export const useProducts = () => {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await fetch(API_URL);
-            if (!response.ok) throw new Error('Falha ao buscar produtos na API.');
+            const response = await proxy('/products');
+            if (!response || !response.ok) throw new Error('Falha ao buscar produtos na API.');
             const data = await response.json();
             const processedData = data.map(processProductData);
             setProducts(processedData);
@@ -87,8 +68,7 @@ export const useProducts = () => {
         setError(null);
         try {
             const method = id ? 'PUT' : 'POST';
-            const url = id ? `${API_URL}/${id}` : API_URL;
-            let imagensArray: string[] = formData.imagens && isDataUrl(formData.imagens.trim()) ? [formData.imagens.trim()] : [];
+            const endpoint = id ? `/products/${id}` : '/products';
 
             const dataToApi = {
                 ...formData,
@@ -96,18 +76,17 @@ export const useProducts = () => {
                 quantidade_em_estoque: Number(formData.quantidade_em_estoque),
                 estoque_minimo: Number(formData.estoque_minimo),
                 ativo: Number(formData.ativo),
-                imagens: JSON.stringify(imagensArray),
+                imagens: formData.imagens || [],
             };
             
-            const response = await fetch(url, {
+            const response = await proxy(endpoint, {
                 method,
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(dataToApi),
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || `Erro HTTP: ${response.status}`);
+            if (!response || !response.ok) {
+                const errorData = response ? await response.json() : {};
+                throw new Error(errorData.error || `Erro ao salvar produto.`);
             }
 
             await fetchProducts(); 
@@ -120,10 +99,10 @@ export const useProducts = () => {
     const deleteProduct = async (id: number) => {
         setError(null);
         try {
-            const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-            if (response.status !== 204) { 
-                const errorData = await response.json();
-                throw new Error(errorData.error || `Erro HTTP: ${response.status}`);
+            const response = await proxy(`/products/${id}`, { method: 'DELETE' });
+            if (!response || response.status !== 204) { 
+                const errorData = response ? await response.json() : {};
+                throw new Error(errorData.error || `Erro ao excluir produto.`);
             }
             setProducts(prev => prev.filter(p => p.id !== id));
             return { success: true, message: 'Produto excluído com sucesso!' };
@@ -134,5 +113,5 @@ export const useProducts = () => {
 
     useEffect(() => { fetchProducts(); }, [fetchProducts]);
 
-    return { products, isLoading, error, fetchProducts, saveProduct, deleteProduct, processProductData };
+    return { products, isLoading, error, fetchProducts, saveProduct, deleteProduct };
 };

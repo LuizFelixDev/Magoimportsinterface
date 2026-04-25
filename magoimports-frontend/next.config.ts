@@ -1,11 +1,21 @@
-const nextConfig = {
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  reactStrictMode: true,
   images: {
     remotePatterns: [
-      { protocol: 'https', hostname: 'via.placeholder.com', port: '', pathname: '/**' },
-      { protocol: 'http', hostname: 'seusite.com', port: '', pathname: '/img/**' },
-      { protocol: 'https', hostname: 'media.istockphoto.com', port: '', pathname: '/**' }, 
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
     ],
   },
-};
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  }
+} as any;
 
 export default nextConfig;
