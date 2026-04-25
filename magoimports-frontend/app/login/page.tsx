@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
 import Image from 'next/image';
-import MagoLogo from '@/imagens/image.png'; //
+import MagoLogo from '@/imagens/image.png';
 
 const EMAILS_PERMITIDOS = [
   'luizhenriquefelix138@gmail.com',
@@ -30,7 +30,12 @@ export default function LoginPage() {
         const res = await fetch('http://localhost:2020/auth/google', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token: tokenResponse.access_token, email: googleUser.email }),
+          body: JSON.stringify({ 
+            email: googleUser.email,
+            nome: googleUser.name,
+            foto: googleUser.picture,
+            google_id: googleUser.sub
+          }),
         });
         
         if (res.ok) {
