@@ -12,6 +12,13 @@ export interface SaleItem {
     totalItem: number;
 }
 
+export interface ProductPrice {
+    id: number;
+    nome: string;
+    preco: number;
+    quantidade_em_estoque: number;
+}
+
 export interface Sale {
     id: number;
     data: string;
