@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react';
-
-const API_URL = 'http://localhost:2020/reports';
+import { proxy } from '@/proxy';
 
 export const useReports = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -8,8 +7,8 @@ export const useReports = () => {
     const fetchData = useCallback(async <T>(path: string): Promise<T | null> => {
         setIsLoading(true);
         try {
-            const res = await fetch(`${API_URL}${path}`);
-            if (!res.ok) return null;
+            const res = await proxy(`/reports${path}`);
+            if (!res || !res.ok) return null;
             return await res.json() as T;
         } catch {
             return null;

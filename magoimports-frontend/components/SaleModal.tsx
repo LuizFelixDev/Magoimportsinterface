@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Sale, SaleFormData, SaleStatus, PaymentMethod, SaleItem, ProductPrice } from '@/hooks/useSales'; 
+import { proxy } from '@/proxy';
 
 interface SaleModalProps {
     isOpen: boolean;
@@ -9,7 +10,6 @@ interface SaleModalProps {
     showAlert: (message: string, type: 'success' | 'error') => void;
 }
 
-const PRODUCTS_API_URL = 'http://localhost:2020/products';
 const statusOptions: SaleStatus[] = ['Concluída', 'Pendente', 'Cancelada'];
 const paymentOptions: PaymentMethod[] = ['Dinheiro', 'Cartão de Crédito', 'Pix', 'Boleto'];
 
@@ -31,8 +31,8 @@ const SaleModal: React.FC<SaleModalProps> = ({ isOpen, onClose, onSave, saleToEd
 
         const fetchProducts = async () => {
             try {
-                const response = await fetch(PRODUCTS_API_URL);
-                if (!response.ok) {
+                const response = await proxy('/products');
+                if (!response || !response.ok) {
                     throw new Error('Falha ao buscar produtos.');
                 }
                 const data = await response.json();

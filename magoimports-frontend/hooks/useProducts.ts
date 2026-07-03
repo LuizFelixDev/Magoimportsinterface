@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { proxy } from '../proxy.js';
+import { proxy } from '@/proxy';
 
 export interface Product { 
     id: number;

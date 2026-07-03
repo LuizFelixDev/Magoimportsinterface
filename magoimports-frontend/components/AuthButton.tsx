@@ -19,7 +19,8 @@ export default function AuthButton() {
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        const res = await fetch('http://localhost:2020/auth/google', {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:2020';
+        const res = await fetch(`${apiUrl}/auth/google`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token: tokenResponse.access_token }),

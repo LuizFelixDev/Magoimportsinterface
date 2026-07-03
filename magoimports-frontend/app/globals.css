@@ -1,6 +1,6 @@
-@import "tailwindcss";
-@import "@fortawesome/fontawesome-free/css/all.min.css";
-
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --background: #ffffff;

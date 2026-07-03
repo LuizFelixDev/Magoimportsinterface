@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import MagoLogo from '@/imagens/image.png'; 
 import AuthButton from '@/components/AuthButton';
+import { proxy } from '@/proxy';
 
 const menuItems = [
     { name: "Produtos", icon: "fas fa-box-open", href: "/products", status: "Pronto" },
@@ -29,9 +30,11 @@ export default function MainMenuPage() {
 
     const fetchPendingUsers = async () => {
         try {
-            const res = await fetch('http://localhost:2020/admin/users/pending');
-            const data = await res.json();
-            setPendingUsers(data);
+            const res = await proxy('/admin/users/pending');
+            if (res && res.ok) {
+                const data = await res.json();
+                setPendingUsers(data);
+            }
         } catch (error) {
             console.error(error);
         }
@@ -39,12 +42,15 @@ export default function MainMenuPage() {
 
     const handleDecision = async (id: string, action: string) => {
         try {
-            await fetch('http://localhost:2020/admin/users/decide', {
+            const res = await proxy('/admin/users/decide', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id, action })
             });
-            setPendingUsers(prev => prev.filter(u => u.id !== id));
+            if (res && res.ok) {
+                setPendingUsers(prev => prev.filter(u => u.id !== id));
+            } else {
+                alert("Erro ao processar decisão");
+            }
         } catch (error) {
             alert("Erro ao processar decisão");
         }

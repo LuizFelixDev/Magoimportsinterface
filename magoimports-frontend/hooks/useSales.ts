@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { proxy } from '@/proxy';
 
 export type SaleStatus = 'Pendente' | 'Concluída' | 'Cancelada';
 export type PaymentMethod = 'Dinheiro' | 'Cartão de Crédito' | 'Pix' | 'Boleto';
@@ -30,8 +31,6 @@ export interface SaleFormData {
     status_venda: SaleStatus;
 }
 
-const API_URL = 'http://localhost:2020/sales';
-
 export const useSales = () => {
     const [sales, setSales] = useState<Sale[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -52,8 +51,8 @@ export const useSales = () => {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await fetch(API_URL);
-            if (!response.ok) throw new Error('Falha ao buscar vendas');
+            const response = await proxy('/sales');
+            if (!response || !response.ok) throw new Error('Falha ao buscar vendas');
             const data = await response.json();
             setSales(data.map(processSaleData));
         } catch (err: any) {
@@ -66,16 +65,15 @@ export const useSales = () => {
     const saveSale = async (formData: SaleFormData, id: number | null = null) => {
         try {
             const method = id ? 'PUT' : 'POST';
-            const url = id ? `${API_URL}/${id}` : API_URL;
-            const response = await fetch(url, {
+            const endpoint = id ? `/sales/${id}` : '/sales';
+            const response = await proxy(endpoint, {
                 method,
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     ...formData,
                     valor_total: Number(formData.valor_total)
                 }),
             });
-            if (!response.ok) throw new Error('Erro ao salvar');
+            if (!response || !response.ok) throw new Error('Erro ao salvar');
             await fetchSales(); 
             return { success: true, message: 'Sucesso' };
         } catch (err: any) {
@@ -85,8 +83,8 @@ export const useSales = () => {
     
     const deleteSale = async (id: number) => {
         try {
-            const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-            if (response.status !== 204) throw new Error('Erro ao excluir');
+            const response = await proxy(`/sales/${id}`, { method: 'DELETE' });
+            if (!response || response.status !== 204) throw new Error('Erro ao excluir');
             setSales(prev => prev.filter(p => p.id !== id));
             return { success: true, message: 'Excluído' };
         } catch (err: any) {
