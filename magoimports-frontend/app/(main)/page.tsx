@@ -19,7 +19,7 @@ export default function MainMenuPage() {
     const [pendingUsers, setPendingUsers] = useState<any[]>([]);
 
     useEffect(() => {
-        const activeUser = localStorage.getItem('mago_active_user');
+        const activeUser = sessionStorage.getItem('mago_active_user');
         if (!activeUser) {
             router.push('/login');
         } else {

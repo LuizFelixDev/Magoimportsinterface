@@ -8,8 +8,8 @@ export default function AuthButton() {
   const [showMenu, setShowMenu] = useState(false);
 
   useEffect(() => {
-    const savedUsers = JSON.parse(localStorage.getItem('mago_users') || '[]');
-    const activeEmail = localStorage.getItem('mago_active_user');
+    const savedUsers = JSON.parse(sessionStorage.getItem('mago_users') || '[]');
+    const activeEmail = sessionStorage.getItem('mago_active_user');
     setUsers(savedUsers);
     if (activeEmail) {
       setCurrentUser(savedUsers.find((u: any) => u.email === activeEmail));
@@ -47,9 +47,9 @@ export default function AuthButton() {
           const updatedUsers = [...users.filter(u => u.email !== userObj.email), userObj];
           setUsers(updatedUsers);
           setCurrentUser(userObj);
-          localStorage.setItem('mago_users', JSON.stringify(updatedUsers));
-          localStorage.setItem('mago_active_user', userObj.email);
-          localStorage.setItem('token', data.token);
+          sessionStorage.setItem('mago_users', JSON.stringify(updatedUsers));
+          sessionStorage.setItem('mago_active_user', userObj.email);
+          sessionStorage.setItem('token', data.token);
           setShowMenu(false);
         } else {
           alert(data.error || "Erro ao fazer login.");
@@ -62,19 +62,19 @@ export default function AuthButton() {
 
   const switchAccount = (user: any) => {
     setCurrentUser(user);
-    localStorage.setItem('mago_active_user', user.email);
+    sessionStorage.setItem('mago_active_user', user.email);
     if (user.token) {
-      localStorage.setItem('token', user.token);
+      sessionStorage.setItem('token', user.token);
     } else {
-      localStorage.removeItem('token');
+      sessionStorage.removeItem('token');
     }
     setShowMenu(false);
   };
 
   const logout = () => {
-    localStorage.removeItem('mago_active_user');
-    localStorage.removeItem('token');
-    localStorage.removeItem('mago_users');
+    sessionStorage.removeItem('mago_active_user');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('mago_users');
     setCurrentUser(null);
     setUsers([]);
     document.cookie = "mago_user_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";

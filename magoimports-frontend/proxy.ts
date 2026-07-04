@@ -5,7 +5,7 @@ export async function proxy(endpoint: string | Request, options: RequestInit = {
         return null;
     }
 
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     
     const headers = {
         'Content-Type': 'application/json',
@@ -25,7 +25,7 @@ export async function proxy(endpoint: string | Request, options: RequestInit = {
         });
 
         if (response.status === 401) {
-            localStorage.removeItem('token');
+            sessionStorage.removeItem('token');
             window.location.href = '/login';
         }
 
