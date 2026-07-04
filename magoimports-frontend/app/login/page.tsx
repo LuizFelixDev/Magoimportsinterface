@@ -50,8 +50,10 @@ export default function LoginPage() {
         });
         
         if (res.ok) {
+          const data = await res.json();
           document.cookie = `mago_user_session=${googleUser.email}; path=/; max-age=28800`;
           localStorage.setItem('mago_active_user', googleUser.email);
+          localStorage.setItem('token', data.token);
           window.location.href = '/';
         } else {
           const errorData = await res.json().catch(() => ({}));
