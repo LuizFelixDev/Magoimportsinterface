@@ -4,9 +4,15 @@ import { useGoogleLogin } from '@react-oauth/google';
 import Image from 'next/image';
 import MagoLogo from '@/imagens/image.png';
 
-const EMAILS_PERMITIDOS = [
+const DEFAULT_EMAILS = [
   'luizhenriquefelix138@gmail.com',
 ];
+
+const getAllowedEmails = (): string[] => {
+  const envEmails = process.env.NEXT_PUBLIC_ALLOWED_EMAILS;
+  if (!envEmails) return DEFAULT_EMAILS;
+  return envEmails.split(',').map(email => email.trim().toLowerCase());
+};
 
 export default function LoginPage() {
   useEffect(() => {
@@ -22,7 +28,10 @@ export default function LoginPage() {
         });
         const googleUser = await infoRes.json();
 
-        if (!EMAILS_PERMITIDOS.includes(googleUser.email)) {
+        const allowedEmails = getAllowedEmails();
+        const userEmail = googleUser.email.toLowerCase();
+
+        if (!allowedEmails.includes(userEmail)) {
           alert("Acesso negado: Este e-mail não possui autorização.");
           return;
         }
