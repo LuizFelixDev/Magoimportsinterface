@@ -19,20 +19,39 @@ export default function AuthButton() {
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
+        const infoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+        });
+        const googleUser = await infoRes.json();
+
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:2020';
         const res = await fetch(`${apiUrl}/auth/google`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token: tokenResponse.access_token }),
+          body: JSON.stringify({ 
+            email: googleUser.email,
+            nome: googleUser.name,
+            foto: googleUser.picture,
+            google_id: googleUser.sub
+          }),
         });
         const data = await res.json();
         if (res.ok) {
-          const updatedUsers = [...users.filter(u => u.email !== data.user.email), data.user];
+          const userObj = {
+            email: googleUser.email,
+            name: googleUser.name,
+            picture: googleUser.picture,
+            token: data.token
+          };
+          const updatedUsers = [...users.filter(u => u.email !== userObj.email), userObj];
           setUsers(updatedUsers);
-          setCurrentUser(data.user);
+          setCurrentUser(userObj);
           localStorage.setItem('mago_users', JSON.stringify(updatedUsers));
-          localStorage.setItem('mago_active_user', data.user.email);
+          localStorage.setItem('mago_active_user', userObj.email);
+          localStorage.setItem('token', data.token);
           setShowMenu(false);
+        } else {
+          alert(data.error || "Erro ao fazer login.");
         }
       } catch (error) {
         console.error(error);
@@ -43,6 +62,11 @@ export default function AuthButton() {
   const switchAccount = (user: any) => {
     setCurrentUser(user);
     localStorage.setItem('mago_active_user', user.email);
+    if (user.token) {
+      localStorage.setItem('token', user.token);
+    } else {
+      localStorage.removeItem('token');
+    }
     setShowMenu(false);
   };
 
@@ -55,6 +79,7 @@ export default function AuthButton() {
     } else {
       setCurrentUser(null);
       localStorage.removeItem('mago_active_user');
+      localStorage.removeItem('token');
     }
   };
 

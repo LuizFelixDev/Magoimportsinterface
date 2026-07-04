@@ -52,6 +52,17 @@ export default function LoginPage() {
         if (res.ok) {
           const data = await res.json();
           document.cookie = `mago_user_session=${googleUser.email}; path=/; max-age=28800`;
+          
+          const userObj = {
+            email: googleUser.email,
+            name: googleUser.name,
+            picture: googleUser.picture,
+            token: data.token
+          };
+          const savedUsers = JSON.parse(localStorage.getItem('mago_users') || '[]');
+          const updatedUsers = [...savedUsers.filter((u: any) => u.email !== userObj.email), userObj];
+          
+          localStorage.setItem('mago_users', JSON.stringify(updatedUsers));
           localStorage.setItem('mago_active_user', googleUser.email);
           localStorage.setItem('token', data.token);
           window.location.href = '/';
