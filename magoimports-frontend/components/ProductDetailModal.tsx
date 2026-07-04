@@ -91,7 +91,7 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ isOpen, onClose
                 </div>
                 
                 <div style={{ flexGrow: 1 }}>
-                    <h2 style={{ fontSize: '1.8em', marginBottom: '10px', color: 'black', fontWeight: 'bold' }}>{product.nome}</h2>
+                    <h2 style={{ fontSize: '1.8em', marginBottom: '10px', color: '#ffffff', fontWeight: 'bold' }}>{product.nome}</h2>
                     <p style={{ fontSize: '1.5em', fontWeight: 'bold', color: '#00ff08', marginBottom: '15px' }}>{formattedPrice}</p>
                     
                     <h3 style={{ fontSize: '1.1em', marginTop: '20px', marginBottom: '5px', color: 'var(--text-color)' }}>Descrição</h3>
