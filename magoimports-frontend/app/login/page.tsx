@@ -54,7 +54,8 @@ export default function LoginPage() {
           localStorage.setItem('mago_active_user', googleUser.email);
           window.location.href = '/';
         } else {
-          alert("Erro na validação com o servidor.");
+          const errorData = await res.json().catch(() => ({}));
+          alert(errorData.error || errorData.message || "Erro na validação com o servidor.");
         }
       } catch (error) {
         alert("Erro de conexão.");
