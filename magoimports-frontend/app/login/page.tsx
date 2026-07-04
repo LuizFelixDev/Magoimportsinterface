@@ -92,12 +92,12 @@ export default function LoginPage() {
 
         {/* Top Header */}
         <div className="flex items-center gap-3 z-10">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 p-[1px] flex items-center justify-center shadow-lg shadow-yellow-500/10">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-white/40 to-white/80 p-[1px] flex items-center justify-center shadow-lg shadow-white/5">
             <div className="w-full h-full bg-[#030712] rounded-[11px] flex items-center justify-center">
-              <span className="text-yellow-400 font-black text-lg">M</span>
+              <span className="text-white font-black text-lg">M</span>
             </div>
           </div>
-          <span className="font-bold text-lg tracking-wider bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">MAGO IMPORTS</span>
+          <span className="font-bold text-lg tracking-wider text-white">MAGO IMPORTS</span>
         </div>
 
         {/* Center Content */}
