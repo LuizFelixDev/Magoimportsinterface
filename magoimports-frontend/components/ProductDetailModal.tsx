@@ -101,7 +101,7 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ isOpen, onClose
                     <p style={{ fontSize: '0.9em', color: 'var(--text-color)' }}>{product.quantidade_em_estoque} unidades em estoque.</p>
 
                     <div style={{ display: 'flex', gap: '15px', marginTop: '30px' }}>
-                        <button onClick={onEdit} style={{...buttonStyle, background: 'var(--primary-color)', color: 'var(--foreground)' }}>
+                        <button onClick={onEdit} style={{...buttonStyle, background: 'var(--primary-color)', color: '#030712' }}>
                             <i className="fas fa-pen"></i> Alterar Produto
                         </button>
                         <button onClick={onDelete} style={{...buttonStyle, background: '#d32f2f', color: 'white' }}>
