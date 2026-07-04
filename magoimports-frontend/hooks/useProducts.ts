@@ -76,7 +76,7 @@ export const useProducts = () => {
                 quantidade_em_estoque: Number(formData.quantidade_em_estoque),
                 estoque_minimo: Number(formData.estoque_minimo),
                 ativo: Number(formData.ativo),
-                imagens: formData.imagens || [],
+                imagens: typeof formData.imagens === 'string' ? (formData.imagens ? [formData.imagens] : []) : (formData.imagens || []),
             };
             
             const response = await proxy(endpoint, {
