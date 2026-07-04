@@ -189,42 +189,45 @@ export default function EnhancedReportsPage() {
                     )}
                 </div>
             </main>
-
             <style jsx>{`
-                .reports-app { display: flex; height: 100vh; background: #000; color: #fff; font-family: 'Inter', sans-serif; }
-                .reports-sidebar { width: 280px; background: #111; padding: 1.5rem; display: flex; flex-direction: column; border-right: 1px solid #222; }
-                .sidebar-logo { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: 800; color: #FFD700; margin-bottom: 2rem; }
+                .reports-app { display: flex; height: 100vh; background: #030712; color: #f3f4f6; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+                .reports-sidebar { width: 280px; background: rgba(255, 255, 255, 0.01); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); padding: 1.5rem; display: flex; flex-direction: column; border-right: 1px solid rgba(255, 255, 255, 0.05); }
+                .sidebar-logo { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: 900; color: var(--primary-color); margin-bottom: 2rem; }
                 .sidebar-nav { display: flex; flex-direction: column; gap: 8px; flex: 1; }
-                .sidebar-nav button { background: none; border: none; color: #888; padding: 12px; text-align: left; border-radius: 8px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px; }
-                .sidebar-nav button.active { background: #FFD700; color: #000; font-weight: bold; }
-                .date-input { background: #222; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 6px; width: 100%; margin-top: 8px; font-size: 0.85rem; }
+                .sidebar-nav button { background: none; border: 1px solid transparent; color: #9ca3af; padding: 12px 16px; text-align: left; border-radius: var(--border-radius-l); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 10px; font-weight: 600; }
+                .sidebar-nav button:hover { background: rgba(255, 255, 255, 0.03); color: #ffffff; }
+                .sidebar-nav button.active { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: #030712; font-weight: 800; border-color: transparent; }
+                .date-input { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); color: #fff; padding: 10px 14px; border-radius: 8px; width: 100%; margin-top: 8px; font-size: 0.85rem; transition: all 0.2s; }
+                .date-input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(251, 255, 0, 0.15); }
                 .reports-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-                .main-header { padding: 1.5rem 2rem; background: #111; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
+                .main-header { padding: 1.5rem 2rem; background: rgba(255, 255, 255, 0.01); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+                .main-header h1 { font-size: 1.5rem; font-weight: 800; }
                 .content-scroll { padding: 2rem; overflow-y: auto; flex: 1; }
                 .top-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
-                .stat-card { background: #111; padding: 24px; border-radius: 16px; border: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
-                .stat-label { color: #888; font-size: 0.85rem; margin-bottom: 5px; }
-                .stat-main-value { font-size: 1.8rem; font-weight: 700; }
+                .stat-card { background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); padding: 24px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; }
+                .stat-label { color: #9ca3af; font-size: 0.85rem; margin-bottom: 5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+                .stat-main-value { font-size: 1.8rem; font-weight: 800; color: #ffffff; }
+                .stat-sub { font-size: 0.8rem; color: #6b7280; font-weight: 500; }
                 .stat-icon-wrapper { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
                 .visual-reports { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-                .report-card { background: #111; padding: 24px; border-radius: 16px; border: 1px solid #222; }
-                .report-card h3 { color: #FFD700; font-size: 1rem; margin-bottom: 20px; }
-                .bar-row { margin-bottom: 15px; }
-                .bar-info { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px; }
-                .bar-track { background: #222; height: 8px; border-radius: 10px; }
-                .bar-fill { height: 100%; border-radius: 10px; transition: width 0.5s ease; }
-                .full-inventory-table { width: 100%; border-collapse: collapse; background: #111; border-radius: 12px; overflow: hidden; }
-                .full-inventory-table th { text-align: left; padding: 15px; background: #1a1a1a; color: #FFD700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
-                .full-inventory-table td { padding: 15px; border-bottom: 1px solid #222; font-size: 0.9rem; }
-                .row-critical { background: rgba(255, 215, 0, 0.03); }
-                .badge { padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; }
-                .badge.critical { background: #FFD700; color: #000; }
-                .badge.ok { border: 1px solid #333; color: #888; }
-                .stagnant-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #222; font-size: 0.9rem; }
-                .refresh-btn { background: #222; border: none; color: #FFD700; width: 40px; height: 40px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
-                .refresh-btn:hover { background: #333; }
-                .back-home { margin-top: auto; background: #222; border: none; color: #fff; padding: 12px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
-                .back-home:hover { background: #cc0000; }
+                .report-card { background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.05); padding: 24px; border-radius: 16px; }
+                .report-card h3 { color: var(--primary-color); font-size: 1.05rem; margin-bottom: 20px; font-weight: 700; }
+                .bar-row { margin-bottom: 18px; }
+                .bar-info { display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 8px; color: #d1d5db; font-weight: 500; }
+                .bar-track { background: rgba(255, 255, 255, 0.05); height: 8px; border-radius: 10px; }
+                .bar-fill { height: 100%; border-radius: 10px; transition: width 0.5s ease; background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)) !important; }
+                .full-inventory-table { width: 100%; border-collapse: collapse; background: transparent; border-radius: 12px; overflow: hidden; }
+                .full-inventory-table th { text-align: left; padding: 15px; background: rgba(255, 255, 255, 0.02); color: var(--primary-color); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+                .full-inventory-table td { padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.9rem; color: #e5e7eb; }
+                .row-critical { background: rgba(239, 68, 68, 0.02); border-left: 3px solid #ef4444; }
+                .badge { padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; display: inline-block; }
+                .badge.critical { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #ef4444; }
+                .badge.ok { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: #10b981; }
+                .stagnant-item { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.9rem; color: #d1d5db; }
+                .refresh-btn { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); color: var(--primary-color); width: 40px; height: 40px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+                .refresh-btn:hover { background: rgba(255, 255, 255, 0.08); }
+                .back-home { margin-top: auto; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); color: #d1d5db; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; }
+                .back-home:hover { background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.2); }
             `}</style>
         </div>
     );

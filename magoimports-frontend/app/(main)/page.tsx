@@ -68,7 +68,17 @@ export default function MainMenuPage() {
 
     return (
         <div className="main-menu-container">
-            <Image src={MagoLogo} alt="Logo Mago Imports" width={400} height={400} style={{ marginBottom: '20px' }} priority />
+            {/* Background Decorative Glow */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-yellow-500/5 rounded-full blur-[140px] pointer-events-none"></div>
+
+            <div className="relative mb-12 flex flex-col items-center">
+                <div className="absolute inset-0 bg-yellow-500 blur-3xl opacity-10 rounded-full"></div>
+                <div className="relative bg-gradient-to-b from-[#111827] to-[#030712] p-6 rounded-3xl border border-white/5 shadow-2xl flex flex-col items-center">
+                    <Image src={MagoLogo} alt="Logo Mago Imports" width={180} height={180} priority className="object-contain drop-shadow-[0_0_20px_rgba(251,255,0,0.1)]" />
+                </div>
+            </div>
+
+            <h1 className="main-title mb-10">Mago Imports</h1>
             
             {pendingUsers.length > 0 && (
                 <div className="admin-notification-toast">
@@ -118,55 +128,57 @@ export default function MainMenuPage() {
             <style jsx>{`
                 .admin-notification-toast {
                     position: fixed;
-                    bottom: 20px;
-                    right: 20px;
-                    width: 320px;
-                    background: rgba(255, 255, 255, 0.9);
-                    backdrop-filter: blur(10px);
-                    border-radius: 16px;
-                    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-                    border: 1px solid rgba(255, 255, 255, 0.3);
+                    bottom: 24px;
+                    right: 24px;
+                    width: 340px;
+                    background: rgba(17, 24, 39, 0.9);
+                    backdrop-filter: blur(16px);
+                    -webkit-backdrop-filter: blur(16px);
+                    border-radius: 20px;
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+                    border: 1px solid rgba(255, 255, 255, 0.08);
                     z-index: 9999;
                     overflow: hidden;
-                    animation: slideIn 0.4s ease-out;
+                    animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
                 }
 
                 @keyframes slideIn {
-                    from { transform: translateX(100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
+                    from { transform: translateY(50px); opacity: 0; }
+                    to { transform: translateY(0); opacity: 1; }
                 }
 
                 .toast-header {
-                    background: #1a1a1a;
-                    color: white;
-                    padding: 12px 16px;
+                    background: rgba(251, 255, 0, 0.1);
+                    color: var(--primary-color);
+                    padding: 14px 20px;
                     display: flex;
                     align-items: center;
                     gap: 10px;
-                    font-weight: 600;
-                    font-size: 0.9rem;
+                    font-weight: 700;
+                    font-size: 0.88rem;
+                    border-bottom: 1px solid rgba(251, 255, 0, 0.1);
                 }
 
                 .toast-body {
-                    max-height: 300px;
+                    max-height: 280px;
                     overflow-y: auto;
-                    padding: 8px 0;
+                    padding: 6px 0;
                 }
 
                 .pending-user-row {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    padding: 12px 16px;
-                    border-bottom: 1px solid rgba(0,0,0,0.05);
+                    padding: 14px 20px;
+                    border-bottom: 1px solid rgba(255,255,255,0.05);
                     transition: background 0.2s;
                 }
 
-                .pending-user-row:hover { background: rgba(0,0,0,0.02); }
+                .pending-user-row:hover { background: rgba(255,255,255,0.02); }
 
                 .user-info { display: flex; flex-direction: column; gap: 2px; }
-                .user-info strong { font-size: 0.85rem; color: #333; }
-                .user-info small { font-size: 0.75rem; color: #777; }
+                .user-info strong { font-size: 0.85rem; color: #f3f4f6; }
+                .user-info small { font-size: 0.75rem; color: #9ca3af; }
 
                 .action-buttons { display: flex; gap: 8px; }
 
@@ -182,11 +194,11 @@ export default function MainMenuPage() {
                     transition: all 0.2s;
                 }
 
-                .btn-approve { background: #e6fcf5; color: #20c997; }
-                .btn-approve:hover { background: #20c997; color: white; transform: scale(1.1); }
+                .btn-approve { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+                .btn-approve:hover { background: #10b981; color: #030712; transform: scale(1.1); }
 
-                .btn-reject { background: #fff5f5; color: #fa5252; }
-                .btn-reject:hover { background: #fa5252; color: white; transform: scale(1.1); }
+                .btn-reject { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+                .btn-reject:hover { background: #ef4444; color: #ffffff; transform: scale(1.1); }
             `}</style>
         </div>
     );

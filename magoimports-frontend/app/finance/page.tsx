@@ -62,12 +62,16 @@ export default function FinancePage() {
 
     return (
         <div className="product-grid-container">
+            {/* Background Decorative Glow */}
+            <div className="absolute top-[20%] left-[-10%] w-[400px] h-[400px] bg-blue-600/5 rounded-full blur-[120px] pointer-events-none"></div>
+            <div className="absolute bottom-[20%] right-[-10%] w-[400px] h-[400px] bg-yellow-500/5 rounded-full blur-[120px] pointer-events-none"></div>
+
             <nav className="navbar" style={{ marginBottom: '30px' }}>
                 <div style={{ display: 'flex', gap: '10px' }}>
                     <button className="nav-button back-button" onClick={() => router.replace('/')}>
                         <i className="fas fa-arrow-left"></i> Voltar
                     </button>
-                    <button className="nav-button" style={{ backgroundColor: '#e74c3c', color: 'white', border: 'none' }} onClick={handleResetDashboard}>
+                    <button className="nav-button" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)' }} onClick={handleResetDashboard}>
                         <i className="fas fa-trash-alt"></i> Zerar Dados
                     </button>
                 </div>
@@ -78,22 +82,22 @@ export default function FinancePage() {
             </nav>
 
             <div className="menu-button-card" style={{ width: '100%', cursor: 'default', marginBottom: '30px', padding: '40px' }}>
-                <h2 className="button-title" style={{ marginBottom: '20px' }}>Resumo de Caixa</h2>
+                <h2 className="button-title" style={{ marginBottom: '25px', alignSelf: 'flex-start', fontSize: '1.4em' }}>Resumo de Caixa</h2>
                 <div className="finance-bar-container">
                     <div className="finance-item">
-                        <span>Receitas: R$ {metrics.receitas.toFixed(2)}</span>
+                        <span style={{ fontSize: '1.05em' }}>Receitas: <strong style={{ color: '#10b981' }}>R$ {metrics.receitas.toFixed(2)}</strong></span>
                         <div className="bar-bg">
                             <div className="bar-fill green" style={{ width: `${metrics.percReceita}%` }}></div>
                         </div>
                     </div>
                     <div className="finance-item">
-                        <span>Despesas: R$ {metrics.despesas.toFixed(2)}</span>
+                        <span style={{ fontSize: '1.05em' }}>Despesas: <strong style={{ color: '#ef4444' }}>R$ {metrics.despesas.toFixed(2)}</strong></span>
                         <div className="bar-bg">
                             <div className="bar-fill red" style={{ width: `${metrics.percDespesa}%` }}></div>
                         </div>
                     </div>
                     <div className="finance-item">
-                        <span>Faturamento Líquido: R$ {metrics.faturamento.toFixed(2)}</span>
+                        <span style={{ fontSize: '1.05em' }}>Faturamento Líquido: <strong style={{ color: '#3b82f6' }}>R$ {metrics.faturamento.toFixed(2)}</strong></span>
                         <div className="bar-bg">
                             <div className="bar-fill primary" style={{ width: `${metrics.percFaturamento}%` }}></div>
                         </div>
@@ -101,21 +105,21 @@ export default function FinancePage() {
                 </div>
             </div>
 
-            <div className="menu-button-card" style={{ width: '100%', cursor: 'default', alignItems: 'flex-start', textAlign: 'left' }}>
-                <h2 className="button-title" style={{ paddingLeft: '20px' }}>
-                    <i className="fas fa-clock" style={{ marginRight: '10px' }}></i>
+            <div className="menu-button-card" style={{ width: '100%', cursor: 'default', alignItems: 'flex-start', textAlign: 'left', padding: '32px' }}>
+                <h2 className="button-title" style={{ marginBottom: '20px', display: 'flex', alignItems: 'center' }}>
+                    <i className="fas fa-clock" style={{ marginRight: '12px', color: 'var(--primary-color)' }}></i>
                     Vendas com Status Pendente
                 </h2>
                 
-                <div className="selected-items-list" style={{ width: '100%', maxHeight: 'none', border: 'none' }}>
+                <div className="selected-items-list" style={{ width: '100%', maxHeight: 'none', border: 'none', background: 'transparent' }}>
                     {pendingSales.length === 0 ? (
                         <p className="empty-message">Nenhuma venda pendente encontrada.</p>
                     ) : (
                         pendingSales.map((sale) => (
-                            <div key={sale.id} className="item-row" style={{ padding: '15px 20px' }}>
+                            <div key={sale.id} className="item-row" style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                                 <div>
-                                    <strong>{sale.cliente || "Cliente Final"}</strong>
-                                    <div style={{ fontSize: '0.8em', color: '#666' }}>
+                                    <strong style={{ fontSize: '1.05em' }}>{sale.cliente || "Cliente Final"}</strong>
+                                    <div style={{ fontSize: '0.85em', color: '#9ca3af', marginTop: '4px' }}>
                                         {new Date(sale.data).toLocaleDateString('pt-BR')} - R$ {Number(sale.valor_total).toFixed(2)}
                                     </div>
                                 </div>
@@ -137,17 +141,18 @@ export default function FinancePage() {
                 .finance-bar-container {
                     display: flex;
                     flex-direction: column;
-                    gap: 20px;
+                    gap: 24px;
                     width: 100%;
                 }
                 .finance-item {
                     display: flex;
                     flex-direction: column;
-                    gap: 8px;
-                    font-weight: 500;
+                    gap: 10px;
+                    font-weight: 600;
+                    color: #d1d5db;
                 }
                 .bar-bg {
-                    background: #eee;
+                    background: rgba(255, 255, 255, 0.05);
                     height: 12px;
                     border-radius: 6px;
                     overflow: hidden;
@@ -156,20 +161,20 @@ export default function FinancePage() {
                     height: 100%;
                     transition: width 0.5s ease-in-out;
                 }
-                .green { background-color: #2ecc71; }
-                .red { background-color: #e74c3c; }
-                .primary { background-color: #3498db; }
+                .green { background-color: #10b981; }
+                .red { background-color: #ef4444; }
+                .primary { background-color: #3b82f6; }
 
-                .btn-approve { background: #e7f5ff; color: #228be6; border: none; cursor: pointer; }
-                .btn-approve:hover { background: #228be6; color: white; }
+                .btn-approve { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: none; cursor: pointer; }
+                .btn-approve:hover { background: #3b82f6; color: #030712; }
                 
-                .btn-reject { background: #fff5f5; color: #fa5252; border: none; cursor: pointer; }
-                .btn-reject:hover { background: #fa5252; color: white; }
+                .btn-reject { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: none; cursor: pointer; }
+                .btn-reject:hover { background: #ef4444; color: white; }
 
                 .action-buttons button {
-                    width: 35px;
-                    height: 35px;
-                    border-radius: 8px;
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 10px;
                     display: flex;
                     align-items: center;
                     justify-content: center;

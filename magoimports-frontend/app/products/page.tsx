@@ -113,11 +113,15 @@ export default function HomePage() {
 
     return (
         <>
+            {/* Background Decorative Glow */}
+            <div className="absolute top-[10%] left-[-5%] w-[350px] h-[350px] bg-blue-600/5 rounded-full blur-[120px] pointer-events-none"></div>
+            <div className="absolute bottom-[10%] right-[-5%] w-[350px] h-[350px] bg-yellow-500/5 rounded-full blur-[120px] pointer-events-none"></div>
+
             <header className="navbar">
                 <button className="nav-button back-button" onClick={() => window.history.back()}>
-                    <i className="fas fa-chevron-left"></i> Voltar
+                    <i className="fas fa-arrow-left"></i> Voltar
                 </button>
-                <h1 className="nav-title">Gestão de Produtos - MagoImports</h1>
+                <h1 className="nav-title">Gestão de Produtos</h1>
                 <button onClick={handleOpenNewModal} className="nav-button new-button">
                     Novo <i className="fas fa-plus"></i>
                 </button>
@@ -170,9 +174,10 @@ export default function HomePage() {
 
             <div id="delete-modal" className={`modal-backdrop ${isDeleteModalOpen ? '' : 'hidden'}`}>
                 <div className="modal-card small-card">
-                    <h2>Confirmar Exclusão</h2>
-                    <p>Tem certeza que deseja excluir o produto: 
-                        <strong id="product-name-to-delete">{productToDelete?.nome}</strong>?
+                    <h2 style={{ color: '#ef4444', marginBottom: '16px' }}>Confirmar Exclusão</h2>
+                    <p style={{ color: '#d1d5db', lineHeight: '1.6' }}>
+                        Tem certeza que deseja excluir o produto:
+                        <strong id="product-name-to-delete" className="text-yellow-400 font-bold block mt-2 text-lg">{productToDelete?.nome}</strong>
                     </p>
                     <div className="button-group">
                         <button onClick={handleConfirmDelete} className="delete-button">Excluir</button>
