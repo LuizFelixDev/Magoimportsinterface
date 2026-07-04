@@ -3,11 +3,12 @@ import { Sale } from '@/hooks/useSales';
 
 interface SaleCardProps {
     sale: Sale;
+    onView: (sale: Sale) => void;
     onEdit: (sale: Sale) => void;
     onDelete: (id: number, cliente: string) => void;
 }
 
-const SaleCard: React.FC<SaleCardProps> = ({ sale, onEdit, onDelete }) => {
+const SaleCard: React.FC<SaleCardProps> = ({ sale, onView, onEdit, onDelete }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     
     const formattedTotal = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(sale.valor_total);
@@ -20,7 +21,7 @@ const SaleCard: React.FC<SaleCardProps> = ({ sale, onEdit, onDelete }) => {
             : 'text-yellow-600';
 
     return (
-        <div className="product-card !flex-row !items-center !justify-between !py-3 !px-6 w-full">
+        <div className="product-card !flex-row !items-center !justify-between !py-3 !px-6 w-full cursor-pointer" onClick={() => onView(sale)}>
             <div className="flex flex-1 items-center justify-between gap-4">
                 <div className="min-w-[80px]">
                     <h3 className="product-title !mb-0 !text-lg">#{sale.id}</h3>
@@ -57,11 +58,17 @@ const SaleCard: React.FC<SaleCardProps> = ({ sale, onEdit, onDelete }) => {
                 <div className={`dropdown-menu ${isMenuOpen ? 'visible' : ''}`} 
                      onMouseLeave={() => setIsMenuOpen(false)}>
                     
-                    <button onClick={() => onEdit(sale)}>
+                    <button onClick={(e) => {
+                        e.stopPropagation();
+                        onEdit(sale);
+                    }}>
                         <i className="fas fa-pen"></i> Alterar
                     </button>
                     
-                    <button className="delete" onClick={() => onDelete(sale.id, sale.cliente || `Venda ${sale.id}`)}>
+                    <button className="delete" onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(sale.id, sale.cliente || `Venda ${sale.id}`);
+                    }}>
                         <i className="fas fa-trash-alt"></i> Excluir
                     </button>
                 </div>

@@ -124,7 +124,7 @@ body {
 
 /* Product Grid */
 .product-grid-container {
-  padding: 30px 5%;
+  padding: 30px 5% 120px 5%;
   position: relative;
   z-index: 10;
 }

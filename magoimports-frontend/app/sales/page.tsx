@@ -3,6 +3,7 @@ import React, { useState, useCallback } from 'react';
 import { useSales, Sale } from '../../hooks/useSales'; 
 import SaleCard from '../../components/SaleCard'; 
 import SaleModal from '../../components/SaleModal';
+import SaleDetailModal from '../../components/SaleDetailModal';
 
 const Alert = ({ message, type }: { message: string, type: 'success' | 'error' }) => {
     const [isVisible, setIsVisible] = useState(true);
@@ -19,6 +20,8 @@ export default function SalesManagerPage() {
     const { sales, isLoading, error, saveSale, deleteSale } = useSales();
     const [isSaleModalOpen, setIsSaleModalOpen] = useState(false);
     const [saleToEdit, setSaleToEdit] = useState<Sale | null>(null);
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+    const [saleToView, setSaleToView] = useState<Sale | null>(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [saleToDelete, setSaleToDelete] = useState<{ id: number, nome: string } | null>(null);
     const [alert, setAlert] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
@@ -36,6 +39,16 @@ export default function SalesManagerPage() {
     const handleEdit = (sale: Sale) => {
         setSaleToEdit(sale);
         setIsSaleModalOpen(true);
+    };
+
+    const handleView = (sale: Sale) => {
+        setSaleToView(sale);
+        setIsDetailModalOpen(true);
+    };
+
+    const handleCloseDetailModal = () => {
+        setIsDetailModalOpen(false);
+        setSaleToView(null);
     };
 
     const handleDeleteClick = (id: number, cliente: string) => {
@@ -74,6 +87,7 @@ export default function SalesManagerPage() {
             <SaleCard 
                 key={sale.id} 
                 sale={sale} 
+                onView={handleView}
                 onEdit={handleEdit} 
                 onDelete={handleDeleteClick} 
             />
@@ -110,6 +124,24 @@ export default function SalesManagerPage() {
                 onSave={saveSale}
                 saleToEdit={saleToEdit}
                 showAlert={showAlert}
+            />
+
+            <SaleDetailModal
+                isOpen={isDetailModalOpen}
+                onClose={handleCloseDetailModal}
+                sale={saleToView}
+                onEdit={() => {
+                    handleCloseDetailModal();
+                    if (saleToView) {
+                        handleEdit(saleToView);
+                    }
+                }}
+                onDelete={() => {
+                    handleCloseDetailModal();
+                    if (saleToView) {
+                        handleDeleteClick(saleToView.id, saleToView.cliente || `Venda ${saleToView.id}`);
+                    }
+                }}
             />
 
             <div id="delete-modal" className={`modal-backdrop ${isDeleteModalOpen ? '' : 'hidden'}`}>
