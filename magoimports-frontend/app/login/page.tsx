@@ -21,6 +21,7 @@ export default function LoginPage() {
   }, []);
 
   const handleGoogleLogin = useGoogleLogin({
+    prompt: 'select_account',
     onSuccess: async (tokenResponse) => {
       try {
         const infoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {

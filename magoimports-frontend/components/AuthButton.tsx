@@ -17,6 +17,7 @@ export default function AuthButton() {
   }, []);
 
   const login = useGoogleLogin({
+    prompt: 'select_account',
     onSuccess: async (tokenResponse) => {
       try {
         const infoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
@@ -71,16 +72,13 @@ export default function AuthButton() {
   };
 
   const logout = () => {
-    const remainingUsers = users.filter(u => u.email !== currentUser.email);
-    setUsers(remainingUsers);
-    localStorage.setItem('mago_users', JSON.stringify(remainingUsers));
-    if (remainingUsers.length > 0) {
-      switchAccount(remainingUsers[0]);
-    } else {
-      setCurrentUser(null);
-      localStorage.removeItem('mago_active_user');
-      localStorage.removeItem('token');
-    }
+    localStorage.removeItem('mago_active_user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('mago_users');
+    setCurrentUser(null);
+    setUsers([]);
+    document.cookie = "mago_user_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    window.location.href = '/login';
   };
 
   if (!currentUser) {
