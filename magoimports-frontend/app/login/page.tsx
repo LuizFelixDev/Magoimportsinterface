@@ -7,6 +7,7 @@ import MagoLogo from '@/imagens/image.png';
 const DEFAULT_EMAILS = [
   'luizhenriquefelix138@gmail.com',
   'samuelpedro298@icloud.com',
+  'samueldoze298@gmail.com',
 ];
 
 const getAllowedEmails = (): string[] => {
