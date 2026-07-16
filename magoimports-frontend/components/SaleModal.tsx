@@ -23,8 +23,7 @@ const SaleModal: React.FC<SaleModalProps> = ({ isOpen, onClose, onSave, saleToEd
     const [selectedItems, setSelectedItems] = useState<SaleItem[]>([]);
     
     const [availableProducts, setAvailableProducts] = useState<ProductPrice[]>([]);
-    const [selectedProductId, setSelectedProductId] = useState<number | ''>('');
-    const [itemQuantity, setItemQuantity] = useState(1);
+    const [productSearch, setProductSearch] = useState('');
 
     useEffect(() => {
         if (!isOpen) return;
@@ -65,48 +64,17 @@ const SaleModal: React.FC<SaleModalProps> = ({ isOpen, onClose, onSave, saleToEd
             setSaleStatus('Concluída');
             setSelectedItems([]);
         }
-        setSelectedProductId('');
-        setItemQuantity(1);
     }, [saleToEdit, today]);
 
     const calculatedTotal = useMemo(() => {
         return selectedItems.reduce((acc, item) => acc + item.totalItem, 0);
     }, [selectedItems]);
 
-    const handleAddItem = useCallback(() => {
-        const product = availableProducts.find(p => p.id === selectedProductId);
-        
-        if (!product || itemQuantity <= 0) {
-            showAlert("Selecione um produto e uma quantidade válida.", 'error');
-            return;
-        }
-
-        const newItem: SaleItem = {
-            produtoId: Number(product.id), 
-            nomeProduto: product.nome,
-            quantidade: Number(itemQuantity), 
-            precoUnitario: Number(product.preco),
-            totalItem: Number(itemQuantity * product.preco),
-        };
-
-        setSelectedItems(prev => {
-            const existingIndex = prev.findIndex(item => item.produtoId === product.id);
-            if (existingIndex > -1) {
-                const updatedItems = [...prev];
-                const existingItem = updatedItems[existingIndex];
-                
-                existingItem.quantidade += newItem.quantidade;
-                existingItem.totalItem = existingItem.quantidade * existingItem.precoUnitario;
-                return updatedItems;
-            } else {
-                return [...prev, newItem];
-            }
-        });
-
-        setSelectedProductId('');
-        setItemQuantity(1);
-
-    }, [selectedProductId, itemQuantity, availableProducts, showAlert]);
+    const filteredAvailableProducts = useMemo(() => {
+        return availableProducts.filter(p =>
+            p.nome.toLowerCase().includes(productSearch.toLowerCase())
+        );
+    }, [availableProducts, productSearch]);
     
     const handleRemoveItem = useCallback((produtoId: number) => {
         setSelectedItems(prev => prev.filter(item => item.produtoId !== produtoId));
@@ -190,37 +158,110 @@ const SaleModal: React.FC<SaleModalProps> = ({ isOpen, onClose, onSave, saleToEd
                         </select>
                     </div>
 
-                    <div className="item-manager flex gap-2 items-center pt-2 border-t">
-                        <div className="flex-1">
-                            <label className="text-xs block mb-1">Produto</label>
-                            <select value={selectedProductId} onChange={(e) => setSelectedProductId(Number(e.target.value) || '')} className="item-select w-full h-10">
-                                <option value="">Selecionar...</option>
-                                {availableProducts.map(p => (
-                                    <option key={p.id} value={p.id}>{p.nome} (R$ {p.preco.toFixed(2)})</option>
-                                ))}
-                            </select>
+                    <div className="input-group pt-2 border-t border-white/10">
+                        <label>Produtos</label>
+                        <div className="relative mb-2">
+                            <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                <i className="fas fa-search text-gray-400 text-xs"></i>
+                            </span>
+                            <input 
+                                type="text" 
+                                placeholder="Pesquisar produto pelo nome..." 
+                                value={productSearch} 
+                                onChange={(e) => setProductSearch(e.target.value)} 
+                                className="w-full pl-9 pr-3 py-2 text-sm bg-[#0d1222] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 transition-all"
+                            />
                         </div>
-                        <div className="w-16">
-                            <label className="text-xs block mb-1">Qtd</label>
-                            <input type="number" value={itemQuantity} onChange={(e) => setItemQuantity(Math.max(1, parseInt(e.target.value) || 1))} min="1" className="item-quantity-input w-full h-10" />
-                        </div>
-                        <div className="self-end">
-                            <button type="button" onClick={handleAddItem} className="add-item-button bg-green-600 text-white h-10 px-4 rounded hover:bg-green-700 transition-colors flex items-center justify-center">
-                                <i className="fas fa-plus"></i>
-                            </button>
+                        
+                        <div className="product-checklist max-h-48 overflow-y-auto border border-white/10 rounded-xl p-2 bg-[#0d1222] space-y-1.5 scrollbar-thin">
+                            {filteredAvailableProducts.length === 0 ? (
+                                <p className="text-gray-400 text-xs text-center py-4">Nenhum produto cadastrado ou encontrado</p>
+                            ) : (
+                                filteredAvailableProducts.map(p => {
+                                    const isChecked = selectedItems.some(item => item.produtoId === p.id);
+                                    const selectedItem = selectedItems.find(item => item.produtoId === p.id);
+                                    const quantity = selectedItem ? selectedItem.quantidade : 1;
+                                    
+                                    return (
+                                        <div 
+                                            key={p.id} 
+                                            className={`flex items-center justify-between p-2 rounded-lg border transition-all ${
+                                                isChecked 
+                                                    ? 'bg-yellow-400/5 border-yellow-400/30' 
+                                                    : 'bg-transparent border-transparent hover:bg-white/5'
+                                            }`}
+                                        >
+                                            <label className="flex items-center gap-3 cursor-pointer text-sm text-gray-200 flex-1 min-w-0 pr-2 select-none">
+                                                <input 
+                                                    type="checkbox" 
+                                                    checked={isChecked} 
+                                                    onChange={(e) => {
+                                                        if (e.target.checked) {
+                                                            const newItem: SaleItem = {
+                                                                produtoId: p.id,
+                                                                nomeProduto: p.nome,
+                                                                quantidade: 1,
+                                                                precoUnitario: p.preco,
+                                                                totalItem: p.preco,
+                                                            };
+                                                            setSelectedItems(prev => [...prev, newItem]);
+                                                        } else {
+                                                            setSelectedItems(prev => prev.filter(item => item.produtoId !== p.id));
+                                                        }
+                                                    }}
+                                                    className="w-4 h-4 rounded border-white/20 text-yellow-500 focus:ring-yellow-500 focus:ring-offset-0 bg-[#0b0f19] cursor-pointer"
+                                                />
+                                                <div className="flex flex-col min-w-0">
+                                                    <span className="font-medium text-gray-200 truncate" title={p.nome}>{p.nome}</span>
+                                                    <span className="text-xs text-yellow-400/90 font-semibold">R$ {p.preco.toFixed(2)}</span>
+                                                </div>
+                                            </label>
+                                            
+                                            {isChecked && (
+                                                <div className="flex items-center gap-1.5 bg-[#0b0f19] px-2 py-1 rounded-lg border border-white/5 shadow-inner">
+                                                    <span className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">Qtd:</span>
+                                                    <input 
+                                                        type="number" 
+                                                        min="1" 
+                                                        value={quantity} 
+                                                        onChange={(e) => {
+                                                            const val = Math.max(1, parseInt(e.target.value) || 1);
+                                                            setSelectedItems(prev => prev.map(item => 
+                                                                item.produtoId === p.id 
+                                                                    ? { ...item, quantidade: val, totalItem: val * p.preco }
+                                                                    : item
+                                                            ));
+                                                        }}
+                                                        className="w-10 h-6 text-center text-xs bg-transparent border-0 text-white focus:ring-0 focus:outline-none p-0 font-bold"
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })
+                            )}
                         </div>
                     </div>
 
-                    <div className="selected-items-list max-h-24 overflow-y-auto border rounded p-2 bg-gray-50">
+                    <div className="selected-items-list">
                         {selectedItems.length === 0 ? (
-                            <p className="text-gray-400 text-xs text-center">Nenhum item</p>
+                            <p className="text-gray-400 text-sm text-center py-4">Nenhum produto selecionado</p>
                         ) : (
                             selectedItems.map((item) => (
-                                <div key={item.produtoId} className="flex justify-between text-xs py-1 border-b last:border-0">
-                                    <span>{item.quantidade}x {item.nomeProduto}</span>
-                                    <div className="flex items-center gap-2">
-                                        <span>R$ {item.totalItem.toFixed(2)}</span>
-                                        <button type="button" onClick={() => handleRemoveItem(item.produtoId)} className="text-red-500">
+                                <div key={item.produtoId} className="item-row">
+                                    <span className="text-sm font-medium text-gray-200">
+                                        {item.quantidade}x {item.nomeProduto}
+                                    </span>
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-sm font-bold text-yellow-400">
+                                            R$ {item.totalItem.toFixed(2)}
+                                        </span>
+                                        <button 
+                                            type="button" 
+                                            onClick={() => handleRemoveItem(item.produtoId)} 
+                                            className="remove-item-button"
+                                            title="Remover"
+                                        >
                                             <i className="fas fa-times"></i>
                                         </button>
                                     </div>
@@ -229,7 +270,7 @@ const SaleModal: React.FC<SaleModalProps> = ({ isOpen, onClose, onSave, saleToEd
                         )}
                     </div>
                     
-                    <div className="total-display flex justify-between items-center py-1">
+                    <div className="total-display">
                         <strong className="text-sm">Total:</strong> 
                         <span className="total-price text-green-700 font-bold">R$ {calculatedTotal.toFixed(2)}</span>
                     </div>
